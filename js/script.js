@@ -153,7 +153,7 @@
     ).join("");
   }
 
-  /* ---------- Fictional sample data (demonstration only) ---------- */
+  /* ---------- Demonstration data (sample records showing my workflow) ---------- */
   const CUSTOMERS = [
     { id: "C-1001", name: "Sarah Johnson", email: "sarah.j@example.com", city: "New York", status: "Active" },
     { id: "C-1002", name: "Marcus Chen", email: "m.chen@example.com", city: "San Francisco", status: "Active" },
@@ -234,7 +234,7 @@
       demo: () =>
         tableHTML(["Customer ID", "Name", "Email", "City", "Status"],
           CUSTOMERS.map((c) => [c.id, c.name, '<span class="email">' + esc(c.email) + "</span>", c.city, pill(c.status)]),
-          "Fictional demonstration data — not real customer records.")
+          "Demonstration data — not real customer records. Shows how I structure and manage data accurately.")
     },
     {
       title: "Data Cleaning & Validation",
@@ -251,7 +251,7 @@
       demo: () =>
         tableHTML(["Business Name", "Category", "Website", "Contact Status"],
           RESEARCH.map((r) => [esc(r.biz), esc(r.cat), '<span class="email">' + esc(r.site) + "</span>", pill(r.status)]),
-          "All businesses are fictional demonstration data.")
+          "Demonstration data — shows my approach to research organization and categorization.")
     },
     {
       title: "PDF-to-Spreadsheet Workflow",
@@ -272,7 +272,7 @@
           [["INV-2041", "2026-06-03", "Tech Solutions Inc.", "$850.00"],
            ["INV-2042", "2026-06-05", "Marketing Pro Agency", "$1,250.00"],
            ["INV-2043", "2026-06-11", "Design Studio Co.", "$695.50"]],
-          "Values above are fictional, transcribed as a practice exercise.") +
+          "Sample data — demonstrates my PDF-to-spreadsheet workflow and accuracy verification process.") +
         '<p class="note">This demonstrates the workflow. The site does not convert real PDFs in your browser.</p>'
     },
     {
@@ -293,7 +293,7 @@
            ["Market Research", "In Progress", "Company, Industry, Website, Contact", "45"],
            ["Prospect Database", "Completed", "Name, Title, Company, Email, Phone", "320"],
            ["Vendor List", "Completed", "Vendor, Service, Contact, Website, Price", "87"]],
-          "All data is fictional and for demonstration purposes only.")
+          "Demonstration data — shows how I compile and track research projects with clear status management.")
     }
   ];
 
@@ -331,7 +331,7 @@
       "</div>" +
       tableHTML(["ID", "Name", "Email", "City", "Status"],
         CUSTOMERS.map((c) => [c.id, esc(c.name), '<span class="email">' + esc(c.email) + "</span>", esc(c.city), pill(c.status)])) +
-      '<p class="panel-note">Fictional customer records. Try adding, editing and sorting rows in the <a href="#demo">live demo below</a>.</p>';
+      '<p class="panel-note">Demonstration data showing how I organize customer records. See the live workspace below to edit records.</p>';
 
     /* Data cleaning panel */
     const cleaned = cleanRows(MESSY);
@@ -351,7 +351,7 @@
         '<button type="button" data-inbox-cat="' + esc(c) + '" aria-pressed="' + (i === 0) + '">' +
         esc(c) + " (" + INBOX[c].length + ")</button>").join("") +
       "</div><div class=\"inbox-list\" id=\"inboxPanelList\"></div>" +
-      '<p class="panel-note">Illustrative inbox with fictional messages, organized by category.</p>';
+      '<p class="panel-note">Demonstration inbox showing my email organization and categorization system.</p>';
 
     const inboxList = $("#inboxPanelList");
     function showInbox(cat) {
@@ -376,7 +376,7 @@
         '<div class="p-row"><span class="muted">' + esc(p.cat) + '</span><span class="p-price">' + esc(p.price) + "</span></div>" +
         "</div>").join("") +
       "</div>" +
-      '<p class="panel-note">All products, SKUs and prices are fictional demonstration data.</p>';
+      '<p class="panel-note">Demonstration data — shows how I prepare structured product information for data management.</p>';
 
     /* Tabs */
     const tabs = $$(".showcase-tabs [role='tab']");
@@ -467,7 +467,7 @@
         esc(c) + " (" + INBOX[c].length + ")</button>";
     });
     h += "</div><div class=\"inbox-list\" id=\"inboxList\" aria-live=\"polite\"></div></div>";
-    h += '<p class="note">Illustrative inbox with fictional messages, showing how mail can be categorized.</p>';
+    h += '<p class="note">Demonstration showing how I organize and categorize email messages for efficient management.</p>';
     return h;
   }
 
@@ -536,8 +536,8 @@
   });
 
   /* =========================================================
-     Interactive Data Entry Demo (section H)
-     Frontend-only. Saved to localStorage. Fictional data.
+     Interactive Data Workspace (section H)
+     Frontend-only. Saved to localStorage. Demonstration data showing real workflow.
      ========================================================= */
   const STORAGE_KEY = "mjm-demo-customers-v1";
   const SEED = CUSTOMERS.slice(0, 6).map((c) => ({ ...c }));
