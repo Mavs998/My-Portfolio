@@ -163,7 +163,7 @@
               <div><dt>GitHub</dt><dd><a href="https://github.com/Mavs998" target="_blank" rel="noopener">github.com/Mavs998</a></dd></div>
               <div><dt>Eligibility</dt><dd class="js-profile" data-field="eligibility">Career Service Professional (2026)</dd></div>
             </dl>
-      
+            <p class="profile-note">Profile fields are editable in <code>js/profile.js</code> &mdash; see the README.</p>
           </aside>
         </div>
       </div>
@@ -363,29 +363,36 @@
 
           </div>
 
-          <form class="contact-form reveal" id="contactForm" novalidate>
+          <form class="contact-form reveal" id="contactForm" data-fs-success-message>
+            <div data-fs-success hidden>
+              <p class="form-status ok" style="color: var(--emerald-dark); font-weight: 600;">✓ Message sent successfully! I'll get back to you soon.</p>
+            </div>
+            <div data-fs-error hidden>
+              <p class="form-status err" style="color: #b34740; font-weight: 600;" data-fs-error="form"></p>
+            </div>
             <div class="form-field">
               <label for="cName">Name <span aria-hidden="true">*</span></label>
-              <input id="cName" name="name" type="text" required maxlength="80" autocomplete="name" />
-              <p class="field-error" id="cErrName" role="alert"></p>
+              <input id="cName" name="name" type="text" required maxlength="80" autocomplete="name" data-fs-field />
+              <p class="field-error" id="cErrName" role="alert" data-fs-error="name"></p>
             </div>
             <div class="form-field">
               <label for="cEmail">Email <span aria-hidden="true">*</span></label>
-              <input id="cEmail" name="email" type="email" required maxlength="80" autocomplete="email" />
-              <p class="field-error" id="cErrEmail" role="alert"></p>
+              <input id="cEmail" name="email" type="email" required maxlength="80" autocomplete="email" data-fs-field />
+              <p class="field-error" id="cErrEmail" role="alert" data-fs-error="email"></p>
             </div>
             <div class="form-field">
               <label for="cSubject">Subject <span aria-hidden="true">*</span></label>
-              <input id="cSubject" name="subject" type="text" required maxlength="120" />
-              <p class="field-error" id="cErrSubject" role="alert"></p>
+              <input id="cSubject" name="subject" type="text" required maxlength="120" data-fs-field />
+              <p class="field-error" id="cErrSubject" role="alert" data-fs-error="subject"></p>
             </div>
             <div class="form-field">
               <label for="cMessage">Message <span aria-hidden="true">*</span></label>
-              <textarea id="cMessage" name="message" rows="5" required maxlength="3000"></textarea>
-              <p class="field-error" id="cErrMessage" role="alert"></p>
+              <textarea id="cMessage" name="message" rows="5" required maxlength="3000" data-fs-field></textarea>
+              <p class="field-error" id="cErrMessage" role="alert" data-fs-error="message"></p>
             </div>
-            <button type="submit" class="btn btn-primary">Preview &amp; Open in Email App</button>
+            <button type="submit" class="btn btn-primary" data-fs-submit-btn>Send Message</button>
             <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+            <p class="form-note">Your message will be sent directly to michaeljohnminor75@gmail.com. I typically respond within 24 hours.</p>
           </form>
         </div>
       </div>
@@ -425,6 +432,13 @@
   </footer>
 
   <button type="button" class="back-to-top" id="backToTop" aria-label="Back to top" hidden>&#8593;</button>
+
+  <!-- Formspree AJAX Integration -->
+  <script>
+    window.formspree = window.formspree || function () { (formspree.q = formspree.q || []).push(arguments); };
+    formspree('initForm', { formElement: '#contactForm', formId: 'xbgdprge' });
+  </script>
+  <script src="https://unpkg.com/@formspree/ajax@1" defer></script>
 
   <!-- ===== Portfolio project modal ===== -->
   <div class="modal" id="projectModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
