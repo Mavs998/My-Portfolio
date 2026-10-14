@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page not found — Michael John Minor</title>
+  <meta name="description" content="The page you are looking for does not exist. Return to the portfolio of Michael John Minor, Data Entry Virtual Assistant." />
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--white) 0%, var(--bg) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(60% 50% at 50% 0%, rgba(22, 134, 91, 0.1), transparent 70%),
+        radial-gradient(46% 40% at 82% 34%, rgba(11, 61, 54, 0.08), transparent 70%),
+        radial-gradient(46% 40% at 14% 30%, rgba(11, 61, 54, 0.06), transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-404 {
+      position: relative;
+      z-index: 1;
+      max-width: 600px;
+      text-align: center;
+      padding: var(--space-4);
+      animation: slideInUp 0.8s ease-out;
+    }
+
+    .page-404-inner {
+      animation: fadeInScale 0.8s ease-out;
+    }
+
+    .page-404-number {
+      font-size: clamp(8rem, 20vw, 14rem);
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--emerald), var(--teal));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0;
+      letter-spacing: -0.02em;
+      animation: floatNumber 3s ease-in-out infinite;
+    }
+
+    @keyframes floatNumber {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .page-404-inner h2 {
+      font-size: var(--h1);
+      margin: var(--space-2) 0 var(--space-1);
+      color: var(--charcoal);
+      animation: slideInUp 0.8s ease-out 0.1s both;
+    }
+
+    .page-404-text {
+      color: var(--muted);
+      font-size: var(--text-lg);
+      margin: var(--space-3) 0 var(--space-4);
+      line-height: 1.7;
+      animation: slideInUp 0.8s ease-out 0.2s both;
+    }
+
+    .page-404-actions {
+      display: flex;
+      gap: var(--space-2);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: var(--space-4) 0 0;
+      animation: slideInUp 0.8s ease-out 0.3s both;
+    }
+
+    .page-404 .btn {
+      animation: buttonHoverReady 0.6s ease-out;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes buttonHoverReady {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--emerald);
+      background: rgba(22, 134, 91, 0.08);
+      border: 1px solid rgba(22, 134, 91, 0.18);
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      margin-bottom: var(--space-2);
+      animation: slideInUp 0.8s ease-out -0.05s both;
+    }
+
+    .page-404-decoration {
+      position: absolute;
+      opacity: 0.04;
+      pointer-events: none;
+      z-index: 0;
+      user-select: none;
+    }
+
+    .decoration-top {
+      top: 10%;
+      right: 5%;
+      font-size: 200px;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .decoration-bottom {
+      bottom: 10%;
+      left: 5%;
+      font-size: 180px;
+      animation: float 8s ease-in-out infinite 1s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-30px) rotate(5deg); }
+    }
+
+    @media (max-width: 640px) {
+      .page-404 {
+        padding: var(--space-2);
+      }
+
+      .page-404-number {
+        font-size: 6rem;
+      }
+
+      .page-404-actions {
+        flex-direction: column;
+      }
+
+      .page-404-actions .btn {
+        width: 100%;
+      }
+
+      .decoration-top {
+        font-size: 120px;
+        top: 5%;
+        right: -5%;
+      }
+
+      .decoration-bottom {
+        font-size: 120px;
+        bottom: 5%;
+        left: -5%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-404-decoration decoration-top">📊</div>
+  <div class="page-404-decoration decoration-bottom">📁</div>
+
+  <main class="page-404">
+    <div class="page-404-inner">
+      <p class="eyebrow">Error</p>
+      <h1 class="page-404-number">404</h1>
+      <h2>Page not found</h2>
+      <p class="page-404-text">
+        Looks like this page went missing. No data, no records, nothing to organize here. Let&rsquo;s get you back on track.
+      </p>
+      <p class="page-404-actions">
+        <a class="btn btn-primary" href="/">← Back to Home</a>
+        <a class="btn btn-outline" href="/#contact">Contact Me</a>
+      </p>
+    </div>
+  </main>
+</body>
+</html>

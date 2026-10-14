@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Michael John Minor — Data Entry Virtual Assistant</title>
+  <meta name="description" content="Portfolio of Michael John Minor, a Data Entry Virtual Assistant from the Philippines offering accurate data entry, spreadsheet management, data cleaning, web research, PDF conversion and reliable remote administrative support." />
+  <meta name="author" content="Michael John Minor" />
+  <meta property="og:title" content="Michael John Minor — Data Entry Virtual Assistant" />
+  <meta property="og:description" content="Accurate Data. Organized Work. Reliable Support. Remote data entry and virtual assistance services." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script defer src="js/profile.js"></script>
+  <script defer src="js/script.js"></script>
+</head>
+<body>
+  <!-- Skip link for keyboard users -->
+  <a class="skip-link" href="#home">Skip to main content</a>
+
+  <!-- ===== A. Navigation Bar ===== -->
+  <header class="site-header" id="siteHeader">
+    <nav class="nav container" aria-label="Primary navigation">
+      <a href="#home" class="logo" aria-label="Michael John Minor — home">
+        <span class="logo-mark">MJ</span>
+        <span class="logo-text">Michael John Minor</span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation menu">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="#home" class="nav-link active-link">Home</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+        <li><a href="#skills" class="nav-link">Skills</a></li>
+        <li><a href="#services" class="nav-link">Services</a></li>
+        <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
+        <li><a href="#contact" class="nav-link">Contact</a></li>
+        <li class="nav-cta-item"><a href="#contact" class="btn btn-primary btn-sm">Hire Me</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- ===== B. Hero Section ===== -->
+    <section class="hero" id="home">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container hero-center">
+        <span class="eyebrow">Data Entry &amp; Virtual Assistance</span>
+        <h1 class="hero-title">Accurate Data.<br />Organized Work.<br />Reliable Support.</h1>
+        <p class="hero-subtitle">
+          Hi, I&rsquo;m <strong>Michael John Minor</strong> &mdash; an IT graduate from the Philippines with experience
+          in high-volume customer support and ICT administrative work. I help businesses manage data,
+          clean and organize spreadsheets, conduct online research, and complete administrative tasks
+          using Excel, Google Workspace, and productivity tools—carefully, on time, and with strict attention to detail.
+        </p>
+        <div class="hero-actions">
+          <a href="#portfolio" class="btn btn-primary">View My Work</a>
+          <a href="#contact" class="btn btn-outline">Contact Me</a>
+        </div>
+        <p class="availability" id="availability">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span class="js-availability-text">Available for remote work &mdash; open to freelance and virtual assistant projects.</span>
+        </p>
+        <ul class="hero-trust" aria-label="Trust indicators">
+          <li><span class="tick" aria-hidden="true">&#10003;</span> Accuracy across multiple systems</li>
+          <li><span class="tick" aria-hidden="true">&#10003;</span> Organized files &amp; documentation</li>
+          <li><span class="tick" aria-hidden="true">&#10003;</span> Quality &amp; deadline focused</li>
+        </ul>
+      </div>
+
+      <!-- Workspace preview window (fictional sample data) -->
+      <div class="container showcase-wrap">
+        <div class="showcase reveal" role="group" aria-label="Workspace preview with fictional sample data">
+          <div class="showcase-chrome">
+            <span class="dot-group" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="showcase-url">Workspace preview &mdash; fictional demonstration data only</span>
+            <span class="badge badge-sample showcase-badge">Sample</span>
+          </div>
+          <div class="showcase-body">
+            <aside class="showcase-side" aria-label="Assistant summary">
+              <div class="side-avatar">
+                <img src="assets/images/Profile.jpg" alt="" width="76" height="76" loading="lazy" />
+              </div>
+              <p class="side-name">Michael John Minor</p>
+              <p class="side-role">Data Entry Virtual Assistant</p>
+              <p class="side-status"><span class="status-dot" aria-hidden="true"></span> Available &middot; Remote (UTC+8)</p>
+              <hr class="side-rule" />
+              <ul class="side-meta">
+                <li><span>Focus</span><strong>Data entry &amp; research</strong></li>
+                <li><span>Toolkit</span><strong>Excel &middot; Sheets &middot; Workspace</strong></li>
+                <li><span>Work style</span><strong>Detail-first, on time</strong></li>
+              </ul>
+            </aside>
+            <div class="showcase-main">
+              <div class="showcase-tabs" role="tablist" aria-label="Workspace preview sections">
+                <button type="button" role="tab" id="tab-sheet" aria-selected="true" aria-controls="panel-sheet">Spreadsheet</button>
+                <button type="button" role="tab" id="tab-clean" aria-selected="false" aria-controls="panel-clean" tabindex="-1">Data Cleaning</button>
+                <button type="button" role="tab" id="tab-inbox" aria-selected="false" aria-controls="panel-inbox" tabindex="-1">Inbox</button>
+                <button type="button" role="tab" id="tab-products" aria-selected="false" aria-controls="panel-products" tabindex="-1">Products</button>
+              </div>
+              <div class="showcase-panels">
+                <div role="tabpanel" id="panel-sheet" aria-labelledby="tab-sheet" class="showcase-panel"></div>
+                <div role="tabpanel" id="panel-clean" aria-labelledby="tab-clean" class="showcase-panel" hidden></div>
+                <div role="tabpanel" id="panel-inbox" aria-labelledby="tab-inbox" class="showcase-panel" hidden></div>
+                <div role="tabpanel" id="panel-products" aria-labelledby="tab-products" class="showcase-panel" hidden></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== C. About Me ===== -->
+    <section class="section about" id="about">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">About Me</span>
+          <h2>Detail-oriented support you can rely on</h2>
+        </header>
+        <div class="about-grid">
+          <div class="about-text reveal">
+            <p>
+              I&rsquo;m Michael John &mdash; a <strong>BS Information Technology graduate</strong> (2026) from Nampicuan,
+              Nueva Ecija, Philippines. During my ICT internship at the DepEd Schools Division Office of Cabanatuan,
+              I handled service requests, maintained computer systems, managed Microsoft 365 accounts, and kept
+              organized, accurate documentation of issues and resolutions.
+            </p>
+            <p>
+              In a fast-paced customer support role for Amazon retail inquiries at Sutherland, I verified order,
+              account, and shipment data across multiple systems &mdash; meeting productivity and quality targets while
+              staying careful under pressure. That experience sharpened exactly what data work demands: accuracy,
+              clear communication, and consistent follow-through.
+            </p>
+            <p>
+              I&rsquo;m a fast learner, comfortable working independently, and committed to delivering clean, well-organized
+              work on time. Confidentiality is non-negotiable for me: client data stays private and is used only for the task at hand.
+            </p>
+            <ul class="about-highlights">
+              <li><span class="tick" aria-hidden="true">&#10003;</span> Attention to detail</li>
+              <li><span class="tick" aria-hidden="true">&#10003;</span> Willingness to learn</li>
+              <li><span class="tick" aria-hidden="true">&#10003;</span> Organization &amp; time management</li>
+              <li><span class="tick" aria-hidden="true">&#10003;</span> Accurate, timely delivery</li>
+            </ul>
+            <div class="about-actions">
+              <a class="btn btn-primary" href="assets/documents/Michael_John_Minor_Resume-.pdf" target="_blank" rel="noopener">Download Résumé (PDF)</a>
+              <a class="btn btn-text" href="mailto:michaeljohnminor75@gmail.com">Email me &rarr;</a>
+            </div>
+          </div>
+          <aside class="profile-card reveal" aria-label="Profile information">
+            <h3>Profile</h3>
+            <dl class="profile-dl">
+              <div><dt>Name</dt><dd class="js-profile" data-field="name">Michael John Minor</dd></div>
+              <div><dt>Title</dt><dd class="js-profile" data-field="title">Data Entry Virtual Assistant</dd></div>
+              <div><dt>Location</dt><dd class="js-profile" data-field="location">Nampicuan, Nueva Ecija, Philippines</dd></div>
+              <div><dt>Email</dt><dd><a href="mailto:michaeljohnminor75@gmail.com">michaeljohnminor75@gmail.com</a></dd></div>
+              <div><dt>GitHub</dt><dd><a href="https://github.com/Mavs998" target="_blank" rel="noopener">github.com/Mavs998</a></dd></div>
+              <div><dt>Eligibility</dt><dd class="js-profile" data-field="eligibility">Career Service Professional (2026)</dd></div>
+            </dl>
+            <p class="profile-note">Profile fields are editable in <code>js/profile.js</code> &mdash; see the README.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== D. Skills ===== -->
+    <section class="section section-alt" id="skills">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Skills</span>
+          <h2>What I bring to your data work</h2>
+          <p class="section-lead">Core capabilities built on IT training and real administrative experience. Data entry, research, organization, and accuracy are my foundation.</p>
+        </header>
+        <div class="grid grid-3" id="skillsGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===== E. Tools ===== -->
+    <section class="section" id="tools">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Tools &amp; Applications</span>
+          <h2>Professional tools &amp; productivity software</h2>
+          <p class="section-lead">Microsoft Office, Google Workspace, email platforms, AI tools, and translation software for accurate data work.</p>
+        </header>
+        <ul class="tools-grid reveal" id="toolsGrid" aria-label="Tools and applications"></ul>
+      </div>
+    </section>
+
+    <!-- ===== F. Services ===== -->
+    <section class="section section-alt" id="services">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Services</span>
+          <h2>How I can help your team</h2>
+          <p class="section-lead">Accurate data entry, meticulous research, organized systems, and reliable support for your business operations.</p>
+        </header>
+        <div class="grid grid-4" id="servicesGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===== G. Portfolio ===== -->
+    <section class="section" id="portfolio">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Portfolio &amp; Sample Work</span>
+          <h2>Data entry, research &amp; organization demonstrations</h2>
+          <p class="section-lead">
+            Every project below is built with <strong>fictional sample data</strong> to demonstrate workflow, accuracy, and attention to detail. They are practice and demonstration pieces &mdash; not client work.
+          </p>
+        </header>
+        <div class="grid grid-3 portfolio-grid" id="portfolioGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===== H. Interactive Data Entry Demo ===== -->
+    <section class="section section-alt" id="demo">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Interactive Demo</span>
+          <h2>Try the data workspace</h2>
+          <p class="section-lead">
+            Test-drive a working data management interface with sample records. Add, edit, delete, search, and sort to see how I handle data efficiently. All changes stay in your browser only &mdash; nothing is sent to servers.
+          </p>
+        </header>
+        <div class="demo-panel reveal" id="demoPanel" aria-label="Interactive data workspace demonstration">
+          <div class="demo-toolbar">
+            <div class="demo-search">
+              <label class="sr-only" for="demoSearch">Search records</label>
+              <input type="search" id="demoSearch" placeholder="Search name, email, city&hellip;" autocomplete="off" />
+            </div>
+            <p class="demo-count" id="demoCount" role="status" aria-live="polite"></p>
+            <div class="demo-actions">
+              <button type="button" class="btn btn-primary btn-sm" id="demoAddBtn">+ Add Record</button>
+              <button type="button" class="btn btn-outline btn-sm" id="demoResetBtn">Reset Demo</button>
+            </div>
+          </div>
+
+          <div class="demo-form" id="demoForm" hidden>
+            <form id="recordForm" novalidate>
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="fName">Full name <span aria-hidden="true">*</span></label>
+                  <input id="fName" name="name" type="text" required maxlength="60" autocomplete="off" />
+                  <p class="field-error" id="errName" role="alert"></p>
+                </div>
+                <div class="form-field">
+                  <label for="fEmail">Email <span aria-hidden="true">*</span></label>
+                  <input id="fEmail" name="email" type="email" required maxlength="80" autocomplete="off" />
+                  <p class="field-error" id="errEmail" role="alert"></p>
+                </div>
+                <div class="form-field">
+                  <label for="fCity">City <span aria-hidden="true">*</span></label>
+                  <input id="fCity" name="city" type="text" required maxlength="40" autocomplete="off" />
+                  <p class="field-error" id="errCity" role="alert"></p>
+                </div>
+                <div class="form-field">
+                  <label for="fStatus">Status</label>
+                  <select id="fStatus" name="status">
+                    <option>Active</option>
+                    <option>Pending</option>
+                    <option>Inactive</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-sm" id="formSubmitBtn">Save Record</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="formCancelBtn">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Sample records table, scrollable">
+            <table class="data-table" id="demoTable">
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col"><button type="button" class="sort-btn" data-sort="name">Name<span class="sort-ind" aria-hidden="true"></span></button></th>
+                  <th scope="col">Email</th>
+                  <th scope="col"><button type="button" class="sort-btn" data-sort="city">City<span class="sort-ind" aria-hidden="true"></span></button></th>
+                  <th scope="col"><button type="button" class="sort-btn" data-sort="status">Status<span class="sort-ind" aria-hidden="true"></span></button></th>
+                  <th scope="col"><span class="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="demoTbody"></tbody>
+            </table>
+          </div>
+          <p class="demo-msg" id="demoMsg" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== I. Work Process ===== -->
+    <section class="section" id="process">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Work Process</span>
+          <h2>How I work, every time</h2>
+        </header>
+        <ol class="process-steps">
+          <li class="process-step reveal">
+            <span class="step-num" aria-hidden="true">1</span>
+            <h3>Understand</h3>
+            <p>I review your task, requirements, and format expectations before starting, and ask clarifying questions up front.</p>
+          </li>
+          <li class="process-step reveal">
+            <span class="step-num" aria-hidden="true">2</span>
+            <h3>Organize &amp; Process</h3>
+            <p>Data is entered, cleaned, sorted, and formatted consistently, keeping sources and drafts clearly labeled.</p>
+          </li>
+          <li class="process-step reveal">
+            <span class="step-num" aria-hidden="true">3</span>
+            <h3>Check Accuracy</h3>
+            <p>I verify completeness and correctness with spot checks, duplicate scans, and totals before anything ships.</p>
+          </li>
+          <li class="process-step reveal">
+            <span class="step-num" aria-hidden="true">4</span>
+            <h3>Deliver On Time</h3>
+            <p>You receive the finished work in your requested format, on schedule, with a short summary of what was done.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== J. Contact ===== -->
+    <section class="section section-alt" id="contact">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Contact</span>
+          <h2>Let&rsquo;s Work Together.</h2>
+          <p class="section-lead">Have data entry, spreadsheet cleanup, research, or virtual assistant tasks? Tell me about them &mdash; I reply promptly.</p>
+        </header>
+        <div class="contact-grid">
+          <div class="contact-info reveal">
+            <ul class="contact-list">
+              <li>
+                <span class="contact-ic" aria-hidden="true">&#9993;</span>
+                <div><strong>Email</strong><br /><a href="mailto:michaeljohnminor75@gmail.com">michaeljohnminor75@gmail.com</a></div>
+              </li>
+              <li>
+                <span class="contact-ic" aria-hidden="true">&#9742;</span>
+                <div><strong>Phone</strong><br /><a href="tel:+639811702870">+63 981 170 2870</a></div>
+              </li>
+              <li>
+                <span class="contact-ic" aria-hidden="true">&#8599;</span>
+                <div><strong>GitHub</strong><br /><a href="https://github.com/Mavs998" target="_blank" rel="noopener">github.com/Mavs998</a></div>
+              </li>
+              <li>
+                <span class="contact-ic" aria-hidden="true">&#128205;</span>
+                <div><strong>Location</strong><br />Nampicuan, Nueva Ecija, Philippines (UTC+8)</div>
+              </li>
+              <li>
+                <span class="contact-ic" aria-hidden="true">&#128196;</span>
+                <div><strong>Résumé</strong><br /><a href="assets/documents/Michael_John_Minor_Resume-.pdf" target="_blank" rel="noopener">Download PDF</a></div>
+              </li>
+            </ul>
+
+          </div>
+
+          <form class="contact-form reveal" id="contactForm" novalidate>
+            <div class="form-field">
+              <label for="cName">Name <span aria-hidden="true">*</span></label>
+              <input id="cName" name="name" type="text" required maxlength="80" autocomplete="name" />
+              <p class="field-error" id="cErrName" role="alert"></p>
+            </div>
+            <div class="form-field">
+              <label for="cEmail">Email <span aria-hidden="true">*</span></label>
+              <input id="cEmail" name="email" type="email" required maxlength="80" autocomplete="email" />
+              <p class="field-error" id="cErrEmail" role="alert"></p>
+            </div>
+            <div class="form-field">
+              <label for="cSubject">Subject <span aria-hidden="true">*</span></label>
+              <input id="cSubject" name="subject" type="text" required maxlength="120" />
+              <p class="field-error" id="cErrSubject" role="alert"></p>
+            </div>
+            <div class="form-field">
+              <label for="cMessage">Message <span aria-hidden="true">*</span></label>
+              <textarea id="cMessage" name="message" rows="5" required maxlength="3000"></textarea>
+              <p class="field-error" id="cErrMessage" role="alert"></p>
+            </div>
+            <button type="submit" class="btn btn-primary">Preview &amp; Open in Email App</button>
+            <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== K. Footer ===== -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="#home" class="logo logo-light"><span class="logo-mark">MJ</span></a>
+        <p class="footer-tag">Accurate data, organized work, reliable support &mdash; from a virtual assistant who sweats the details.</p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <h3 class="footer-h">Navigate</h3>
+        <ul class="footer-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#portfolio">Portfolio</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div>
+        <h3 class="footer-h">Connect</h3>
+        <ul class="footer-links">
+          <li><a href="https://github.com/Mavs998" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="mailto:michaeljohnminor75@gmail.com">Email</a></li>
+          <li><a href="assets/documents/Michael_John_Minor_Resume-.pdf" target="_blank" rel="noopener">Résumé</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <span id="year"></span> Michael John Minor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <button type="button" class="back-to-top" id="backToTop" aria-label="Back to top" hidden>&#8593;</button>
+
+  <!-- ===== Portfolio project modal ===== -->
+  <div class="modal" id="projectModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog">
+      <header class="modal-head">
+        <h3 id="modalTitle"></h3>
+        <button type="button" class="modal-close" data-close-modal aria-label="Close dialog">&times;</button>
+      </header>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- ===== Data cleaning demo (inside its modal) ===== -->
+  <template id="tplCleanDemo">
+    <div class="clean-demo">
+      <p class="demo-tag">Demonstration &mdash; fictional data, processed live in your browser.</p>
+      <div class="clean-cols">
+        <div>
+          <h4>Before (messy)</h4>
+          <pre class="clean-pre" id="cleanBefore"></pre>
+        </div>
+        <div>
+          <h4>After (cleaned)</h4>
+          <pre class="clean-pre clean-after" id="cleanAfter" aria-live="polite"></pre>
+        </div>
+      </div>
+      <div class="clean-controls">
+        <button type="button" class="btn btn-primary btn-sm" id="runClean">Run Data Cleaning</button>
+        <p class="demo-msg" id="cleanMsg" role="status"></p>
+      </div>
+      <ul class="clean-notes">
+        <li>Trims extra spaces and fixes inconsistent capitalization.</li>
+        <li>Removes duplicate records (case- and space-insensitive match).</li>
+        <li>Fills missing emails with <code>not-provided@example.com</code> placeholder.</li>
+        <li>Normalizes status values to Active / Pending / Inactive.</li>
+      </ul>
+    </div>
+  </template>
+</body>
+</html>
