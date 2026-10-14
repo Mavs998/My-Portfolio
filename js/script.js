@@ -745,11 +745,12 @@
     });
   }
 
-  /* ---------- Contact form (static site: composes an email) ---------- */
+  /* ---------- Contact form (Formspree AJAX handles submission) ---------- */
   function wireContactForm() {
     const form = $("#contactForm");
     if (!form) return;
-    const status = $("#formStatus");
+    
+    // Basic field validation before Formspree processes
     const fields = [
       { input: $("#cName"), err: $("#cErrName"), test: (v) => v.trim().length >= 2, msg: "Please enter your name." },
       { input: $("#cEmail"), err: $("#cErrEmail"), test: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()), msg: "Please enter a valid email address." },
@@ -757,10 +758,17 @@
       { input: $("#cMessage"), err: $("#cErrMessage"), test: (v) => v.trim().length >= 10, msg: "Message should be at least 10 characters." }
     ];
 
-    fields.forEach((f) => f.input.addEventListener("input", () => setFieldError(f.input, f.err, "")));
+    fields.forEach((f) => {
+      f.input.addEventListener("input", () => setFieldError(f.input, f.err, ""));
+      f.input.addEventListener("blur", () => {
+        if (!f.test(f.input.value)) {
+          setFieldError(f.input, f.err, f.msg);
+        }
+      });
+    });
 
+    // Clear error messages on focus
     form.addEventListener("submit", (e) => {
-      e.preventDefault();
       let firstBad = null;
       fields.forEach((f) => {
         const bad = !f.test(f.input.value);
@@ -768,23 +776,10 @@
         if (bad && !firstBad) firstBad = f.input;
       });
       if (firstBad) {
-        status.textContent = "Please fix the highlighted fields.";
-        status.className = "form-status err";
+        e.preventDefault();
         firstBad.focus();
-        return;
       }
-      const mail = (P.email || "michaeljohnminor75@gmail.com");
-      const body = "Name: " + $("#cName").value.trim() +
-        "\nEmail: " + $("#cEmail").value.trim() +
-        "\n\nMessage:\n" + $("#cMessage").value.trim();
-      const href = "mailto:" + encodeURIComponent(mail) +
-        "?subject=" + encodeURIComponent($("#cSubject").value.trim() + " — via portfolio site") +
-        "&body=" + encodeURIComponent(body);
-      status.innerHTML =
-        'Opening your email app to send to <strong>' + esc(mail) + "</strong>. " +
-        "If nothing happens, <a href=\"" + href + "\">click here to compose the email</a>.";
-      status.className = "form-status ok";
-      window.location.href = href;
+      // Formspree AJAX will handle the actual submission if validation passes
     });
   }
 
