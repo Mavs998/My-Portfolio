@@ -9,13 +9,43 @@
   <meta property="og:title" content="Michael John Minor — Data Entry Virtual Assistant" />
   <meta property="og:description" content="Accurate Data. Organized Work. Reliable Support. Remote data entry and virtual assistance services." />
   <meta property="og:type" content="website" />
+  <link rel="canonical" href="https://mavs998.github.io/My-Portfolio/" />
   <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg" />
+  
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:url" content="https://mavs998.github.io/My-Portfolio/" />
+  <meta property="og:image" content="https://mavs998.github.io/My-Portfolio/assets/images/Profile.jpg" />
+  <meta property="og:locale" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Michael John Minor — Data Entry Virtual Assistant" />
+  <meta name="twitter:description" content="Accurate Data. Organized Work. Reliable Support. Remote data entry and virtual assistance services." />
+  
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <!-- Stylesheets -->
   <link rel="stylesheet" href="css/style.css" />
+  
+  <!-- Chart.js for analytics visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  
+  <!-- Scripts -->
   <script defer src="js/profile.js"></script>
   <script defer src="js/script.js"></script>
+  
+  <!-- Google Analytics 4 - Replace MEASUREMENT_ID with your actual GA4 Measurement ID -->
+  <!-- To set up: Visit https://analytics.google.com and create a GA4 property -->
+  <!--
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+  -->
 </head>
 <body>
   <!-- Skip link for keyboard users -->
@@ -41,8 +71,16 @@
         <li><a href="#skills" class="nav-link">Skills</a></li>
         <li><a href="#services" class="nav-link">Services</a></li>
         <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
+        <li><a href="#demo" class="nav-link">Workspace</a></li>
+        <li><a href="#tasks" class="nav-link">Tasks</a></li>
         <li><a href="#contact" class="nav-link">Contact</a></li>
         <li class="nav-cta-item"><a href="#contact" class="btn btn-primary btn-sm">Hire Me</a></li>
+        <li class="nav-theme-item">
+          <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark/light mode">
+            <span class="theme-icon theme-icon-sun" aria-hidden="true">☀️</span>
+            <span class="theme-icon theme-icon-moon" aria-hidden="true">🌙</span>
+          </button>
+        </li>
       </ul>
     </nav>
   </header>
@@ -62,7 +100,8 @@
         </p>
         <div class="hero-actions">
           <a href="#portfolio" class="btn btn-primary">View My Work</a>
-          <a href="#contact" class="btn btn-outline">Contact Me</a>
+          <a href="assets/documents/Michael_John_Minor_Resume-.pdf" class="btn btn-outline" target="_blank" rel="noopener" id="resumeDownloadHero">⬇ Download Résumé</a>
+          <a href="#contact" class="btn btn-ghost">Contact Me</a>
         </div>
         <p class="availability" id="availability">
           <span class="status-dot" aria-hidden="true"></span>
@@ -215,6 +254,17 @@
             Every project below uses <strong>demonstration data</strong> to showcase my workflow, accuracy standards, and attention to detail. These are practice samples that demonstrate how I approach real client work—with the same precision and organization.
           </p>
         </header>
+        <div class="portfolio-filters reveal" role="group" aria-label="Portfolio category filter">
+          <button type="button" class="filter-btn active" data-filter="all">All Projects</button>
+          <button type="button" class="filter-btn" data-filter="data-entry">Data Entry</button>
+          <button type="button" class="filter-btn" data-filter="research">Research</button>
+          <button type="button" class="filter-btn" data-filter="admin">Admin / VA</button>
+          <button type="button" class="filter-btn" data-filter="cleaning">Data Cleaning</button>
+        </div>
+        <div class="portfolio-search reveal" style="margin-bottom: 1.5rem;">
+          <label class="sr-only" for="portfolioSearch">Search projects</label>
+          <input type="search" id="portfolioSearch" placeholder="Search projects…" autocomplete="off" style="max-width:340px;" />
+        </div>
         <div class="grid grid-3 portfolio-grid" id="portfolioGrid"></div>
       </div>
     </section>
@@ -226,22 +276,78 @@
           <span class="eyebrow">Interactive Demo</span>
           <h2>Try the data workspace</h2>
           <p class="section-lead">
-            Test-drive a working data management interface with sample records. Add, edit, delete, search, and sort to see how I handle data efficiently. All changes stay in your browser only &mdash; nothing is sent to servers.
+            Test-drive a working data management interface with sample records. Add, edit, delete, search, sort, import, and export data to see how I handle data work efficiently. All changes stay in your browser only &mdash; nothing is sent to servers.
           </p>
         </header>
         <div class="demo-panel reveal" id="demoPanel" aria-label="Interactive data workspace demonstration">
+
+          <!-- Toolbar -->
           <div class="demo-toolbar">
             <div class="demo-search">
               <label class="sr-only" for="demoSearch">Search records</label>
-              <input type="search" id="demoSearch" placeholder="Search name, email, city&hellip;" autocomplete="off" />
+              <input type="search" id="demoSearch" placeholder="Search name, email, city, status&hellip;" autocomplete="off" />
+            </div>
+            <div class="demo-filter-wrap">
+              <label class="sr-only" for="demoFilter">Filter by status</label>
+              <select id="demoFilter" class="demo-filter-select">
+                <option value="">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
+                <option value="Inactive">Inactive</option>
+              </select>
             </div>
             <p class="demo-count" id="demoCount" role="status" aria-live="polite"></p>
             <div class="demo-actions">
               <button type="button" class="btn btn-primary btn-sm" id="demoAddBtn">+ Add Record</button>
-              <button type="button" class="btn btn-outline btn-sm" id="demoResetBtn">Reset Demo</button>
+              <div class="demo-menu-wrap">
+                <button type="button" class="btn btn-outline btn-sm" id="demoMenuBtn" aria-haspopup="true" aria-expanded="false">Actions &#9660;</button>
+                <div class="demo-menu" id="demoMenu" hidden role="menu">
+                  <button type="button" role="menuitem" id="demoExportBtn">&#11015; Export CSV (all)</button>
+                  <button type="button" role="menuitem" id="demoExportFilteredBtn">&#11015; Export CSV (filtered)</button>
+                  <button type="button" role="menuitem" id="demoImportBtn">&#11014; Import CSV</button>
+                  <button type="button" role="menuitem" id="demoTemplateBtn">&#128196; Download Template</button>
+                  <hr role="separator" />
+                  <button type="button" role="menuitem" id="demoQualityBtn">&#128269; Run Data Quality Check</button>
+                  <button type="button" role="menuitem" id="demoCleanBtn">&#10024; Auto-Clean Data</button>
+                  <hr role="separator" />
+                  <button type="button" role="menuitem" id="demoResetBtn" class="danger-item">&#8635; Reset to Demo Data</button>
+                </div>
+              </div>
             </div>
           </div>
 
+          <!-- Hidden file input for CSV import -->
+          <input type="file" id="csvFileInput" accept=".csv,text/csv" aria-hidden="true" style="display:none;" tabindex="-1" />
+
+          <!-- Import preview panel -->
+          <div class="import-preview" id="importPreview" hidden aria-live="polite">
+            <div class="import-header">
+              <strong id="importTitle">Import Preview</strong>
+              <p id="importSummary" class="import-summary"></p>
+            </div>
+            <div class="table-scroll" style="max-height:220px;">
+              <table class="data-table" id="importTable">
+                <thead id="importThead"></thead>
+                <tbody id="importTbody"></tbody>
+              </table>
+            </div>
+            <div class="import-actions">
+              <button type="button" class="btn btn-primary btn-sm" id="importConfirmBtn">Apply Import</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="importCancelBtn">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Data quality panel -->
+          <div class="quality-panel" id="qualityPanel" hidden aria-live="polite">
+            <h4 class="quality-title">Data Quality Report</h4>
+            <div class="quality-metrics" id="qualityMetrics"></div>
+            <div class="quality-actions">
+              <button type="button" class="btn btn-primary btn-sm" id="qualityCleanBtn">&#10024; Fix Issues Automatically</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="qualityCloseBtn">Close</button>
+            </div>
+          </div>
+
+          <!-- Add/Edit form -->
           <div class="demo-form" id="demoForm" hidden>
             <form id="recordForm" novalidate>
               <div class="form-row">
@@ -276,13 +382,17 @@
             </form>
           </div>
 
+          <!-- Main table -->
           <div class="table-scroll" tabindex="0" role="region" aria-label="Sample records table, scrollable">
             <table class="data-table" id="demoTable">
               <thead>
                 <tr>
+                  <th scope="col" style="width:36px;">
+                    <input type="checkbox" id="selectAll" aria-label="Select all records" />
+                  </th>
                   <th scope="col">ID</th>
                   <th scope="col"><button type="button" class="sort-btn" data-sort="name">Name<span class="sort-ind" aria-hidden="true"></span></button></th>
-                  <th scope="col">Email</th>
+                  <th scope="col"><button type="button" class="sort-btn" data-sort="email">Email<span class="sort-ind" aria-hidden="true"></span></button></th>
                   <th scope="col"><button type="button" class="sort-btn" data-sort="city">City<span class="sort-ind" aria-hidden="true"></span></button></th>
                   <th scope="col"><button type="button" class="sort-btn" data-sort="status">Status<span class="sort-ind" aria-hidden="true"></span></button></th>
                   <th scope="col"><span class="sr-only">Actions</span></th>
@@ -291,7 +401,21 @@
               <tbody id="demoTbody"></tbody>
             </table>
           </div>
+
+          <!-- Bulk action bar -->
+          <div class="bulk-bar" id="bulkBar" hidden role="group" aria-label="Bulk actions">
+            <span id="bulkCount" class="bulk-count"></span>
+            <button type="button" class="btn btn-outline btn-sm" id="bulkDeleteBtn">&#128465; Delete Selected</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="bulkDeselectBtn">&#10005; Clear Selection</button>
+          </div>
+
+          <!-- Pagination -->
+          <div class="demo-pagination" id="demoPagination" aria-label="Table pagination"></div>
+
           <p class="demo-msg" id="demoMsg" role="status" aria-live="polite"></p>
+          <p class="demo-storage-note">
+            <small>&#128190; Data saved in your browser via localStorage. <button type="button" class="btn-text btn-sm" id="demoExportBeforeReset" style="font-size:0.78rem;">Export before resetting</button></small>
+          </p>
         </div>
       </div>
     </section>
@@ -328,7 +452,138 @@
       </div>
     </section>
 
-    <!-- ===== J. Contact ===== -->
+    <!-- ===== I2. Analytics Dashboard ===== -->
+    <section class="section section-alt" id="analytics">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Analytics Dashboard</span>
+          <h2>Data-driven workspace insights</h2>
+          <p class="section-lead">This dashboard reflects the actual records in the interactive workspace above. Change, add, or delete records there and these charts update automatically. All data is local to your browser.</p>
+        </header>
+        <div class="analytics-notice reveal" role="note">
+          <span>&#128202;</span> These metrics are derived from the live demonstration dataset &mdash; not from real visitor traffic. <a href="#demo">Edit the workspace records</a> to see the charts update.
+        </div>
+        <div class="analytics-grid reveal">
+          <div class="analytics-kpis" id="analyticsKpis" aria-label="Key metrics"></div>
+          <div class="analytics-charts">
+            <div class="chart-card reveal">
+              <h3 class="chart-title">Records by Status</h3>
+              <div class="chart-wrap" style="max-height:220px;">
+                <canvas id="chartStatus" aria-label="Records by status doughnut chart" role="img"></canvas>
+              </div>
+              <p class="chart-legend" id="statusLegend" aria-live="polite"></p>
+            </div>
+            <div class="chart-card reveal">
+              <h3 class="chart-title">Data Quality Breakdown</h3>
+              <div class="chart-wrap" style="max-height:220px;">
+                <canvas id="chartQuality" aria-label="Data quality bar chart" role="img"></canvas>
+              </div>
+              <p class="chart-desc" id="qualityDesc" aria-live="polite"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== J. Virtual Assistant Task Manager ===== -->
+    <section class="section" id="tasks">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">VA Task Manager Demo</span>
+          <h2>Virtual assistant task management</h2>
+          <p class="section-lead">An interactive task tracker demonstrating how I organize and prioritize virtual assistant work. Add tasks, set priorities and due dates, track status, and export. Data saved in your browser only &mdash; not sent to any server.</p>
+        </header>
+        <div class="task-panel reveal" id="taskPanel" aria-label="Task manager demonstration">
+          <!-- Task toolbar -->
+          <div class="task-toolbar">
+            <div class="demo-search">
+              <label class="sr-only" for="taskSearch">Search tasks</label>
+              <input type="search" id="taskSearch" placeholder="Search tasks&hellip;" autocomplete="off" />
+            </div>
+            <div class="task-filter-group" role="group" aria-label="Filter tasks">
+              <select id="taskFilterStatus" aria-label="Filter by status">
+                <option value="">All Statuses</option>
+                <option value="To Do">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+                <option value="Overdue">Overdue</option>
+              </select>
+              <select id="taskFilterPriority" aria-label="Filter by priority">
+                <option value="">All Priorities</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+              <select id="taskSort" aria-label="Sort tasks">
+                <option value="dueDate">Sort: Due Date</option>
+                <option value="priority">Sort: Priority</option>
+                <option value="status">Sort: Status</option>
+                <option value="created">Sort: Date Added</option>
+              </select>
+            </div>
+            <div class="task-actions">
+              <button type="button" class="btn btn-primary btn-sm" id="addTaskBtn">+ Add Task</button>
+              <button type="button" class="btn btn-outline btn-sm" id="exportTasksBtn">&#11015; Export CSV</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="resetTasksBtn">&#8635; Reset</button>
+            </div>
+          </div>
+
+          <!-- Task stats bar -->
+          <div class="task-stats" id="taskStats" aria-label="Task statistics" aria-live="polite"></div>
+
+          <!-- Add/Edit task form -->
+          <div class="task-form-wrap" id="taskFormWrap" hidden>
+            <form id="taskForm" novalidate>
+              <div class="task-form-grid">
+                <div class="form-field">
+                  <label for="tTitle">Task title <span aria-hidden="true">*</span></label>
+                  <input id="tTitle" name="title" type="text" required maxlength="120" autocomplete="off" />
+                  <p class="field-error" id="errTTitle" role="alert"></p>
+                </div>
+                <div class="form-field">
+                  <label for="tPriority">Priority</label>
+                  <select id="tPriority" name="priority">
+                    <option>High</option>
+                    <option selected>Medium</option>
+                    <option>Low</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="tDue">Due date</label>
+                  <input id="tDue" name="dueDate" type="date" />
+                </div>
+                <div class="form-field">
+                  <label for="tStatus">Status</label>
+                  <select id="tStatus" name="status">
+                    <option>To Do</option>
+                    <option>In Progress</option>
+                    <option>Completed</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field" style="grid-column: 1 / -1;">
+                <label for="tNotes">Notes <span class="muted">(optional)</span></label>
+                <input id="tNotes" name="notes" type="text" maxlength="200" autocomplete="off" placeholder="Brief notes or context&hellip;" />
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-sm" id="taskSubmitBtn">Save Task</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="taskCancelBtn">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Task list -->
+          <div class="task-list" id="taskList" aria-label="Task list" aria-live="polite"></div>
+
+          <p class="demo-msg" id="taskMsg" role="status" aria-live="polite"></p>
+          <p class="demo-storage-note">
+            <small>&#128190; Tasks saved locally in your browser. Data is not sent anywhere.</small>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== K. Contact ===== -->
     <section class="section section-alt" id="contact">
       <div class="container">
         <header class="section-head reveal">
@@ -400,11 +655,14 @@
   </main>
 
   <!-- ===== K. Footer ===== -->
-  <footer class="site-footer">
+  <footer class="site-footer" itemscope itemtype="https://schema.org/Person">
     <div class="container footer-grid">
       <div>
-        <a href="#home" class="logo logo-light"><span class="logo-mark">MJ</span></a>
-        <p class="footer-tag">Accurate data, organized work, reliable support &mdash; from a virtual assistant who sweats the details.</p>
+        <a href="#home" class="logo logo-light" aria-label="Michael John Minor — home"><span class="logo-mark">MJ</span></a>
+        <p class="footer-tag" itemprop="description">Accurate data, organized work, reliable support &mdash; from a virtual assistant who sweats the details.</p>
+        <p class="footer-location" itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
+          <span itemprop="addressLocality">Nampicuan</span>, <span itemprop="addressRegion">Nueva Ecija</span>, <span itemprop="addressCountry">Philippines</span>
+        </p>
       </div>
       <nav aria-label="Footer navigation">
         <h3 class="footer-h">Navigate</h3>
@@ -414,20 +672,23 @@
           <li><a href="#skills">Skills</a></li>
           <li><a href="#services">Services</a></li>
           <li><a href="#portfolio">Portfolio</a></li>
+          <li><a href="#demo">Workspace</a></li>
+          <li><a href="#tasks">Task Manager</a></li>
+          <li><a href="#analytics">Analytics</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
       </nav>
       <div>
         <h3 class="footer-h">Connect</h3>
         <ul class="footer-links">
-          <li><a href="https://github.com/Mavs998" target="_blank" rel="noopener">GitHub</a></li>
-          <li><a href="mailto:michaeljohnminor75@gmail.com">Email</a></li>
-          <li><a href="assets/documents/Michael_John_Minor_Resume-.pdf" target="_blank" rel="noopener">Résumé</a></li>
+          <li><a href="https://github.com/Mavs998" target="_blank" rel="noopener" itemprop="sameAs">GitHub</a></li>
+          <li><a href="mailto:michaeljohnminor75@gmail.com" itemprop="email">Email</a></li>
+          <li><a href="assets/documents/Michael_John_Minor_Resume-.pdf" target="_blank" rel="noopener">R&eacute;sum&eacute;</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; <span id="year"></span> Michael John Minor. All rights reserved.</p>
+      <p>&copy; <span id="year"></span> <span itemprop="name">Michael John Minor</span>. All rights reserved.</p>
     </div>
   </footer>
 
@@ -439,6 +700,30 @@
     formspree('initForm', { formElement: '#contactForm', formId: 'xbgdprge' });
   </script>
   <script src="https://unpkg.com/@formspree/ajax@1" defer></script>
+
+  <!-- Schema.org structured data for SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Michael John Minor",
+    "jobTitle": "Data Entry Virtual Assistant",
+    "description": "IT graduate from the Philippines offering data entry, spreadsheet management, data cleaning, web research, and virtual assistant services.",
+    "url": "https://mavs998.github.io/My-Portfolio/",
+    "email": "michaeljohnminor75@gmail.com",
+    "telephone": "+639811702870",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Nampicuan",
+      "addressRegion": "Nueva Ecija",
+      "addressCountry": "PH"
+    },
+    "sameAs": [
+      "https://github.com/Mavs998"
+    ],
+    "knowsAbout": ["Data Entry", "Spreadsheet Management", "Microsoft Excel", "Google Sheets", "Data Cleaning", "Virtual Assistance", "Web Research", "Administrative Support"]
+  }
+  </script>
 
   <!-- ===== Portfolio project modal ===== -->
   <div class="modal" id="projectModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
