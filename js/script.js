@@ -16,6 +16,15 @@
 
   const P = window.PROFILE || {};
 
+  /* ---------- Google Analytics event helper ---------- */
+  function trackEvent(name, params) {
+    try {
+      if (typeof window.gtag === "function") {
+        window.gtag("event", name, params || {});
+      }
+    } catch (_) { /* GA not configured — silent */ }
+  }
+
   /* ---------- SVG icons (inline, no external assets) ---------- */
   const ICON = {
     keyboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9 14h6"/></svg>',
@@ -51,9 +60,32 @@
           '" target="_blank" rel="noopener">View LinkedIn profile</a>';
       }
     }
+    // Update résumé download link in hero if profilePath available
+    if (P.resumePath) {
+      const heroResume = $("#resumeDownloadHero");
+      if (heroResume) heroResume.href = P.resumePath;
+    }
   }
 
-  /* ---------- Skills (from résumé — no fabricated scores) ---------- */
+  /* ---------- Dark mode ---------- */
+  function wireTheme() {
+    const btn = $("#themeToggle");
+    if (!btn) return;
+    const stored = localStorage.getItem("mjm-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initial = stored || (prefersDark ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", initial);
+
+    btn.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      try { localStorage.setItem("mjm-theme", next); } catch (_) {}
+      btn.setAttribute("aria-label", next === "dark" ? "Switch to light mode" : "Switch to dark mode");
+    });
+  }
+
+  /* ---------- Skills ---------- */
   const SKILLS = [
     { icon: "keyboard", name: "Data Entry Accuracy", desc: "Fast, careful typing and record entry with systematic accuracy checks and spot verification." },
     { icon: "sheet", name: "Spreadsheet Management", desc: "Excel and Google Sheets: tables, formulas, sorting, filtering, structured formatting." },
@@ -100,7 +132,6 @@
   function renderTools() {
     const grid = $("#toolsGrid");
     if (!grid) return;
-    
     const TOOL_LOGOS = {
       "Microsoft Excel": "excel-logo-8033473_1280.webp",
       "Microsoft Word": "microsoft-word.webp",
@@ -116,18 +147,13 @@
       "Grammarly": "gramarly.webp",
       "DeepL": "deeplL.webp"
     };
-    
-    grid.innerHTML = TOOLS.map(
-      (t) => {
-        const logoFile = TOOL_LOGOS[t.label];
-        const logoImg = logoFile 
-          ? '<img src="assets/images/' + esc(logoFile) + '" alt="' + esc(t.label) + ' logo" loading="lazy" />'
-          : '<span aria-hidden="true" style="font-size:1.2rem;font-weight:800;">' + esc(t.short) + '</span>';
-        return '<li class="tool-item reveal">' +
-          '<span class="tool-logo" aria-hidden="true">' + logoImg + '</span>' +
-          esc(t.label) + '</li>';
-      }
-    ).join("");
+    grid.innerHTML = TOOLS.map((t) => {
+      const logoFile = TOOL_LOGOS[t.label];
+      const logoImg = logoFile
+        ? '<img src="assets/images/' + esc(logoFile) + '" alt="' + esc(t.label) + ' logo" loading="lazy" />'
+        : '<span aria-hidden="true" style="font-size:1.2rem;font-weight:800;">' + esc(t.short) + '</span>';
+      return '<li class="tool-item reveal"><span class="tool-logo" aria-hidden="true">' + logoImg + '</span>' + esc(t.label) + '</li>';
+    }).join("");
   }
 
   /* ---------- Services ---------- */
@@ -149,11 +175,13 @@
       (s) =>
         '<article class="card service-card reveal">' +
         '<div class="card-icon" aria-hidden="true">' + ICON[s.icon] + "</div>" +
-        "<h3>" + esc(s.name) + "</h3><p>" + esc(s.desc) + "</p></article>"
+        "<h3>" + esc(s.name) + "</h3><p>" + esc(s.desc) + "</p>" +
+        '<a href="#contact" class="btn btn-outline btn-sm" style="margin-top:0.75rem;align-self:flex-start;">Get a Quote</a>' +
+        "</article>"
     ).join("");
   }
 
-  /* ---------- Demonstration data (sample records showing my workflow) ---------- */
+  /* ---------- Demonstration data ---------- */
   const CUSTOMERS = [
     { id: "C-1001", name: "Sarah Johnson", email: "sarah.j@example.com", city: "New York", status: "Active" },
     { id: "C-1002", name: "Marcus Chen", email: "m.chen@example.com", city: "San Francisco", status: "Active" },
@@ -212,51 +240,61 @@
 
   function tableHTML(cols, rows, caption) {
     let h = '<div class="table-scroll" tabindex="0" role="region" aria-label="Sample data table, scrollable"><table class="data-table"><thead><tr>';
-    cols.forEach((c) => (h += "<th scope=\"col\">" + esc(c) + "</th>"));
+    cols.forEach((c) => (h += '<th scope="col">' + esc(c) + "</th>"));
     h += "</tr></thead><tbody>";
     rows.forEach((r) => {
       h += "<tr>";
-      r.forEach((cell, i) => (h += "<td" + (typeof cell === "string" && cell.startsWith("<span") ? "" : "") + ">" + cell + "</td>"));
+      r.forEach((cell) => (h += "<td>" + cell + "</td>"));
       h += "</tr>";
     });
     h += "</tbody>";
-    if (caption) h += "<caption>" + caption + "</caption>";
+    if (caption) h += "<caption>" + esc(caption) + "</caption>";
     return h + "</table></div>";
   }
 
-  /* ---------- Project gallery ---------- */
+  /* ---------- Portfolio projects ---------- */
   const PROJECTS = [
     {
       title: "Customer Data Entry",
       badge: "Sample Project",
+      category: "data-entry",
       desc: "Structured customer records with name, email, location, and status in a clean, organized spreadsheet.",
+      tools: "Microsoft Excel, Google Sheets",
       thumb: "sheet",
-      demo: () =>
-        tableHTML(["Customer ID", "Name", "Email", "City", "Status"],
-          CUSTOMERS.map((c) => [c.id, c.name, '<span class="email">' + esc(c.email) + "</span>", c.city, pill(c.status)]),
-          "Demonstration data — not real customer records. Shows how I structure and manage data accurately.")
+      demo: () => tableHTML(
+        ["Customer ID", "Name", "Email", "City", "Status"],
+        CUSTOMERS.map((c) => [c.id, c.name, '<span class="email">' + esc(c.email) + "</span>", c.city, pill(c.status)]),
+        "Demonstration data — not real customer records. Shows how I structure and manage data accurately."
+      )
     },
     {
       title: "Data Cleaning & Validation",
       badge: "Demonstration",
+      category: "cleaning",
       desc: "Before-and-after cleanup: messy spacing, capitalization, duplicates, and missing values corrected live.",
+      tools: "Excel, manual validation techniques",
       thumb: "sparkle",
       demo: () => cleanDemoHTML()
     },
     {
       title: "Business Research Database",
       badge: "Practice Project",
+      category: "research",
       desc: "Compiled business research with categories, websites, and contact status for outreach campaigns.",
+      tools: "Google Sheets, web research, DeepL",
       thumb: "globe",
-      demo: () =>
-        tableHTML(["Business Name", "Category", "Website", "Contact Status"],
-          RESEARCH.map((r) => [esc(r.biz), esc(r.cat), '<span class="email">' + esc(r.site) + "</span>", pill(r.status)]),
-          "Demonstration data — shows my approach to research organization and categorization.")
+      demo: () => tableHTML(
+        ["Business Name", "Category", "Website", "Contact Status"],
+        RESEARCH.map((r) => [esc(r.biz), esc(r.cat), '<span class="email">' + esc(r.site) + "</span>", pill(r.status)]),
+        "Demonstration data — shows my approach to research organization and categorization."
+      )
     },
     {
       title: "PDF-to-Spreadsheet Workflow",
       badge: "Demonstration",
+      category: "data-entry",
       desc: "Visual walkthrough showing how invoice, report, or form PDFs can be converted to organized spreadsheets.",
+      tools: "Microsoft Excel, manual extraction",
       thumb: "pdf",
       demo: () =>
         '<div class="flow">' +
@@ -278,72 +316,106 @@
     {
       title: "Email Organization System",
       badge: "Practice Project",
+      category: "admin",
       desc: "Sample inbox workflow showing categories, priorities, and status tracking for efficient email management.",
+      tools: "Gmail, Microsoft Outlook",
       thumb: "mail",
       demo: () => inboxDemoHTML()
     },
     {
       title: "Research & Data Compilation",
       badge: "Sample Project",
+      category: "research",
       desc: "Organized research data with fields for easy filtering, sorting, and compilation into reports.",
+      tools: "Google Sheets, web research",
       thumb: "folder",
-      demo: () =>
-        tableHTML(["Project", "Status", "Fields", "Records"],
-          [["Contact List", "Completed", "Name, Email, Phone, Company", "150"],
-           ["Market Research", "In Progress", "Company, Industry, Website, Contact", "45"],
-           ["Prospect Database", "Completed", "Name, Title, Company, Email, Phone", "320"],
-           ["Vendor List", "Completed", "Vendor, Service, Contact, Website, Price", "87"]],
-          "Demonstration data — shows how I compile and track research projects with clear status management.")
+      demo: () => tableHTML(
+        ["Project", "Status", "Fields", "Records"],
+        [["Contact List", "Completed", "Name, Email, Phone, Company", "150"],
+         ["Market Research", "In Progress", "Company, Industry, Website, Contact", "45"],
+         ["Prospect Database", "Completed", "Name, Title, Company, Email, Phone", "320"],
+         ["Vendor List", "Completed", "Vendor, Service, Contact, Website, Price", "87"]],
+        "Demonstration data — shows how I compile and track research projects with clear status management."
+      )
     }
   ];
+
+  let activeFilter = "all";
+  let portfolioSearchQuery = "";
 
   function renderPortfolio() {
     const grid = $("#portfolioGrid");
     if (!grid) return;
-    grid.innerHTML = PROJECTS.map(
-      (p, i) =>
-        '<article class="card portfolio-card reveal">' +
+
+    const q = portfolioSearchQuery.trim().toLowerCase();
+    grid.innerHTML = PROJECTS.map((p, i) => {
+      const matchesFilter = activeFilter === "all" || p.category === activeFilter;
+      const matchesSearch = !q || (p.title + " " + p.desc + " " + (p.tools || "")).toLowerCase().includes(q);
+      const hidden = !(matchesFilter && matchesSearch);
+      return '<article class="card portfolio-card reveal' + (hidden ? " hidden" : "") + '" data-index="' + i + '">' +
         '<div class="portfolio-thumb" aria-hidden="true">' + ICON[p.thumb] + "</div>" +
         '<div class="badge-row"><span class="badge ' + (p.badge === "Demonstration" ? "badge-demo" : "badge-sample") + '">' +
         esc(p.badge) + "</span></div>" +
         "<h3>" + esc(p.title) + "</h3><p>" + esc(p.desc) + "</p>" +
+        (p.tools ? '<p style="font-size:0.78rem;color:var(--muted);margin-top:0.3rem;"><strong>Tools:</strong> ' + esc(p.tools) + '</p>' : '') +
         '<button type="button" class="btn btn-outline btn-sm" data-demo="' + i + '">View Demo</button>' +
-        "</article>"
-    ).join("");
+        "</article>";
+    }).join("");
+
+    const visible = grid.querySelectorAll(".portfolio-card:not(.hidden)");
+    if (!visible.length) {
+      grid.innerHTML += '<p style="text-align:center;color:var(--muted);padding:2rem;grid-column:1/-1;">No projects match your search.</p>';
+    }
+  }
+
+  function wirePortfolioFilters() {
+    $$(".filter-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        $$(".filter-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeFilter = btn.dataset.filter;
+        renderPortfolio();
+        trackEvent("portfolio_filter", { filter: activeFilter });
+      });
+    });
+
+    const searchInput = $("#portfolioSearch");
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        portfolioSearchQuery = e.target.value;
+        renderPortfolio();
+      });
+    }
   }
 
   /* =========================================================
-     Hero showcase window (fictional sample data, tabbed)
+     Hero showcase window
      ========================================================= */
   function renderShowcase() {
     const sheet = $("#panel-sheet");
     if (!sheet) return;
 
-    /* Spreadsheet panel */
     const activeCount = CUSTOMERS.filter((c) => c.status === "Active").length;
     const cityCount = new Set(CUSTOMERS.map((c) => c.city)).size;
     sheet.innerHTML =
       '<div class="panel-stats">' +
       '<span class="stat-chip"><strong>' + CUSTOMERS.length + "</strong>Records</span>" +
       '<span class="stat-chip"><strong>' + activeCount + "</strong>Active</span>" +
-      '<span class="stat-chip"><strong>' + cityCount + "</strong>Cities covered</span>" +
-      '<span class="stat-chip"><strong>5</strong>Fields per record</span>' +
+      '<span class="stat-chip"><strong>' + cityCount + "</strong>Cities</span>" +
+      '<span class="stat-chip"><strong>5</strong>Fields</span>' +
       "</div>" +
       tableHTML(["ID", "Name", "Email", "City", "Status"],
         CUSTOMERS.map((c) => [c.id, esc(c.name), '<span class="email">' + esc(c.email) + "</span>", esc(c.city), pill(c.status)])) +
       '<p class="panel-note">Demonstration data showing how I organize customer records. See the live workspace below to edit records.</p>';
 
-    /* Data cleaning panel */
     const cleaned = cleanRows(MESSY);
     $("#panel-clean").innerHTML =
       '<div class="clean-cols-sm">' +
       "<div><h4>Before (raw)</h4><pre class=\"clean-pre\">" + esc(fmt(MESSY)) + "</pre></div>" +
       "<div><h4>After (cleaned)</h4><pre class=\"clean-pre clean-after\">" + esc(fmt(cleaned)) + "</pre></div>" +
       "</div>" +
-      '<p class="panel-note">Duplicates removed, spacing and capitalization normalized, missing values handled. ' +
-      "Run it yourself in the <a href=\"#portfolio\">Data Cleaning demo</a> under Portfolio.</p>";
+      '<p class="panel-note">Duplicates removed, spacing and capitalization normalized, missing values handled.</p>';
 
-    /* Inbox panel */
     const cats = Object.keys(INBOX);
     $("#panel-inbox").innerHTML =
       '<div class="inbox-pills" role="group" aria-label="Mail categories">' +
@@ -365,7 +437,6 @@
       b.addEventListener("click", () => showInbox(b.dataset.inboxCat)));
     showInbox(cats[0]);
 
-    /* Products panel */
     $("#panel-products").innerHTML =
       '<div class="product-cards">' +
       PRODUCTS.map((p) =>
@@ -376,9 +447,8 @@
         '<div class="p-row"><span class="muted">' + esc(p.cat) + '</span><span class="p-price">' + esc(p.price) + "</span></div>" +
         "</div>").join("") +
       "</div>" +
-      '<p class="panel-note">Demonstration data — shows how I prepare structured product information for data management.</p>';
+      '<p class="panel-note">Demonstration data — shows how I prepare structured product information.</p>';
 
-    /* Tabs */
     const tabs = $$(".showcase-tabs [role='tab']");
     function selectTab(tab) {
       tabs.forEach((t) => {
@@ -448,7 +518,7 @@
     const after = $("#cleanAfter");
     const msg = $("#cleanMsg");
     before.textContent = fmt(MESSY);
-    after.textContent = "Click “Run Data Cleaning” to process the rows on the left.";
+    after.textContent = 'Click "Run Data Cleaning" to process the rows on the left.';
     btn.addEventListener("click", () => {
       const cleaned = cleanRows(MESSY);
       after.textContent = fmt(cleaned);
@@ -482,8 +552,7 @@
       ).join("");
     }
     btns.forEach((b) => b.addEventListener("click", () => show(b.dataset.cat)));
-    show(cats0());
-    function cats0() { return btns[0].dataset.cat; }
+    show(btns[0].dataset.cat);
   }
 
   /* ---------- Generic modal ---------- */
@@ -533,22 +602,28 @@
       if (p.thumb === "sparkle") wireCleanDemo();
       if (p.thumb === "mail") wireInbox(body);
     });
+    trackEvent("portfolio_project_view", { project_title: p.title });
   });
 
   /* =========================================================
      Interactive Data Workspace (section H)
-     Frontend-only. Saved to localStorage. Demonstration data showing real workflow.
+     Uses localStorage for persistence.
      ========================================================= */
-  const STORAGE_KEY = "mjm-demo-customers-v1";
-  const SEED = CUSTOMERS.slice(0, 6).map((c) => ({ ...c }));
+  const STORAGE_KEY = "mjm-demo-customers-v2";
+  const PAGE_SIZE = 10;
+  const SEED = CUSTOMERS.slice().map((c, i) => ({ ...c, idNum: 1001 + i, created: Date.now() - (7 - i) * 86400000 }));
 
   const demoState = {
     rows: [],
     nextId: 1009,
     query: "",
+    statusFilter: "",
     sortKey: null,
     sortDir: 1,
-    editingId: null
+    editingId: null,
+    page: 1,
+    selected: new Set(),
+    pendingImport: null
   };
 
   function loadRows() {
@@ -562,21 +637,22 @@
           return;
         }
       }
-    } catch (err) { /* storage unavailable or corrupt: fall back to seed */ }
-    demoState.rows = SEED.map((c, i) => ({ ...c, idNum: 1001 + i }));
+    } catch (_) {}
+    demoState.rows = SEED.map((c) => ({ ...c }));
   }
 
   function saveRows() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(demoState.rows)); }
-    catch (err) { /* private mode etc. — demo still works in-memory */ }
+    catch (_) {}
+    refreshAnalyticsDashboard();
   }
 
-  function demoMsg(text, ok) {
+  function showDemoMsg(text, ok) {
     const el = $("#demoMsg");
     el.textContent = text;
     el.className = "demo-msg " + (ok ? "ok" : "err");
-    clearTimeout(demoMsg._t);
-    demoMsg._t = setTimeout(() => { el.textContent = ""; }, 5000);
+    clearTimeout(showDemoMsg._t);
+    showDemoMsg._t = setTimeout(() => { el.textContent = ""; el.className = "demo-msg"; }, 6000);
   }
 
   function visibleRows() {
@@ -586,39 +662,106 @@
       rows = rows.filter((r) =>
         [r.name, r.email, r.city, r.status, r.id].join(" ").toLowerCase().includes(q));
     }
+    if (demoState.statusFilter) {
+      rows = rows.filter((r) => r.status === demoState.statusFilter);
+    }
     if (demoState.sortKey) {
       const k = demoState.sortKey;
-      rows = rows.slice().sort((a, b) => String(a[k]).localeCompare(String(b[k]), undefined, { numeric: true }) * demoState.sortDir);
+      rows = rows.slice().sort((a, b) =>
+        String(a[k]).localeCompare(String(b[k]), undefined, { numeric: true }) * demoState.sortDir);
     }
     return rows;
   }
 
+  function pagedRows() {
+    const all = visibleRows();
+    const start = (demoState.page - 1) * PAGE_SIZE;
+    return { rows: all.slice(start, start + PAGE_SIZE), total: all.length };
+  }
+
   function renderDemoTable() {
     const tbody = $("#demoTbody");
-    const rows = visibleRows();
+    const { rows, total } = pagedRows();
+    const allVisible = visibleRows();
+
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty-row">No records match your search.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="empty-row">No records match your search.</td></tr>';
     } else {
-      tbody.innerHTML = rows.map((r) =>
-        "<tr>" +
-        "<td>" + esc(r.id) + "</td>" +
-        "<td>" + esc(r.name) + "</td>" +
-        '<td class="email">' + esc(r.email) + "</td>" +
-        "<td>" + esc(r.city) + "</td>" +
-        "<td>" + pill(r.status) + "</td>" +
-        '<td class="row-actions">' +
-        '<button type="button" data-edit-row="' + esc(r.id) + '">Edit</button>' +
-        '<button type="button" class="delete-btn" data-del-row="' + esc(r.id) + '">Delete</button>' +
-        "</td></tr>"
-      ).join("");
+      tbody.innerHTML = rows.map((r) => {
+        const checked = demoState.selected.has(r.id);
+        return "<tr" + (checked ? ' class="selected-row"' : "") + ">" +
+          '<td><input type="checkbox" aria-label="Select ' + esc(r.name) + '" data-sel-id="' + esc(r.id) + '"' + (checked ? " checked" : "") + " /></td>" +
+          "<td>" + esc(r.id) + "</td>" +
+          "<td>" + esc(r.name) + "</td>" +
+          '<td class="email">' + esc(r.email) + "</td>" +
+          "<td>" + esc(r.city) + "</td>" +
+          "<td>" + pill(r.status) + "</td>" +
+          '<td class="row-actions">' +
+          '<button type="button" data-edit-row="' + esc(r.id) + '">Edit</button>' +
+          '<button type="button" class="delete-btn" data-del-row="' + esc(r.id) + '">Delete</button>' +
+          "</td></tr>";
+      }).join("");
     }
-    const total = demoState.rows.length;
-    $("#demoCount").textContent =
-      rows.length === total ? "Records: " + total
-      : "Showing " + rows.length + " of " + total + " records";
+
+    const selCount = demoState.selected.size;
+    const countEl = $("#demoCount");
+    let countText = total === demoState.rows.length
+      ? "Records: " + demoState.rows.length
+      : "Showing " + total + " of " + demoState.rows.length + " records";
+    if (selCount) countText += " (" + selCount + " selected)";
+    countEl.textContent = countText;
+
+    // Select all checkbox state
+    const selectAll = $("#selectAll");
+    if (selectAll) {
+      const pageIds = rows.map((r) => r.id);
+      const allChecked = pageIds.length > 0 && pageIds.every((id) => demoState.selected.has(id));
+      const someChecked = pageIds.some((id) => demoState.selected.has(id));
+      selectAll.checked = allChecked;
+      selectAll.indeterminate = !allChecked && someChecked;
+    }
+
+    // Sort indicators
     $$(".sort-btn").forEach((b) => {
-      if (b.dataset.sort === demoState.sortKey) b.setAttribute("aria-sort", demoState.sortDir === 1 ? "ascending" : "descending");
-      else b.removeAttribute("aria-sort");
+      if (b.dataset.sort === demoState.sortKey) {
+        b.setAttribute("aria-sort", demoState.sortDir === 1 ? "ascending" : "descending");
+      } else {
+        b.removeAttribute("aria-sort");
+      }
+    });
+
+    // Bulk bar
+    const bulkBar = $("#bulkBar");
+    if (bulkBar) {
+      bulkBar.hidden = selCount === 0;
+      const bulkCount = $("#bulkCount");
+      if (bulkCount) bulkCount.textContent = selCount + " record" + (selCount === 1 ? "" : "s") + " selected";
+    }
+
+    renderPagination(total);
+  }
+
+  function renderPagination(total) {
+    const el = $("#demoPagination");
+    if (!el) return;
+    const pages = Math.ceil(total / PAGE_SIZE);
+    if (pages <= 1) { el.innerHTML = ""; return; }
+    let h = "";
+    h += '<button class="page-btn" data-page="prev" ' + (demoState.page <= 1 ? "disabled" : "") + ' aria-label="Previous page">&lsaquo;</button>';
+    for (let i = 1; i <= pages; i++) {
+      h += '<button class="page-btn' + (i === demoState.page ? " current" : "") + '" data-page="' + i + '" aria-label="Page ' + i + '" aria-current="' + (i === demoState.page ? "page" : "false") + '">' + i + '</button>';
+    }
+    h += '<button class="page-btn" data-page="next" ' + (demoState.page >= pages ? "disabled" : "") + ' aria-label="Next page">&rsaquo;</button>';
+    el.innerHTML = h;
+    $$(".page-btn", el).forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const v = btn.dataset.page;
+        const pages2 = Math.ceil(visibleRows().length / PAGE_SIZE);
+        if (v === "prev") demoState.page = Math.max(1, demoState.page - 1);
+        else if (v === "next") demoState.page = Math.min(pages2, demoState.page + 1);
+        else demoState.page = Number(v);
+        renderDemoTable();
+      });
     });
   }
 
@@ -660,15 +803,182 @@
     demoState.editingId = null;
   }
 
+  /* ---- CSV utilities ---- */
+  function escapeCSVCell(val) {
+    const s = String(val == null ? "" : val);
+    // Prevent formula injection
+    const safe = s.replace(/^[=+\-@\t\r]/, "'$&");
+    if (safe.includes(",") || safe.includes('"') || safe.includes("\n")) {
+      return '"' + safe.replace(/"/g, '""') + '"';
+    }
+    return safe;
+  }
+
+  function rowsToCSV(rows) {
+    const header = ["ID", "Name", "Email", "City", "Status"];
+    const lines = [header.map(escapeCSVCell).join(",")];
+    rows.forEach((r) => {
+      lines.push([r.id, r.name, r.email, r.city, r.status].map(escapeCSVCell).join(","));
+    });
+    return lines.join("\r\n");
+  }
+
+  function downloadCSV(csv, filename) {
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+  }
+
+  function parseCSV(text) {
+    const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n").filter((l) => l.trim());
+    const parseRow = (line) => {
+      const cols = [];
+      let cur = "";
+      let inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (inQ) {
+          if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+          else if (c === '"') { inQ = false; }
+          else { cur += c; }
+        } else {
+          if (c === '"') { inQ = true; }
+          else if (c === ",") { cols.push(cur); cur = ""; }
+          else { cur += c; }
+        }
+      }
+      cols.push(cur);
+      return cols;
+    };
+    return lines.map(parseRow);
+  }
+
+  function buildImportPreview(rows, headers) {
+    // Validate headers
+    const required = ["name", "email", "city", "status"];
+    const hdrs = headers.map((h) => h.trim().toLowerCase());
+    const missing = required.filter((r) => !hdrs.includes(r));
+
+    if (missing.length) {
+      return { valid: false, error: "Missing required columns: " + missing.join(", ") + ". Expected: Name, Email, City, Status." };
+    }
+
+    const nameIdx = hdrs.indexOf("name");
+    const emailIdx = hdrs.indexOf("email");
+    const cityIdx = hdrs.indexOf("city");
+    const statusIdx = hdrs.indexOf("status");
+
+    const valid = [];
+    const invalid = [];
+
+    rows.forEach((cols, i) => {
+      const name = (cols[nameIdx] || "").trim();
+      const email = (cols[emailIdx] || "").trim().toLowerCase();
+      const city = (cols[cityIdx] || "").trim();
+      const statusRaw = (cols[statusIdx] || "").trim();
+      const status = ["Active", "Pending", "Inactive"].includes(statusRaw) ? statusRaw : "Pending";
+
+      const errs = validateRecord(name, email, city);
+      if (Object.keys(errs).length) {
+        invalid.push({ row: i + 2, name, reason: Object.values(errs).join("; ") });
+      } else {
+        valid.push({ name, email, city, status });
+      }
+    });
+
+    return { valid: true, validRows: valid, invalidRows: invalid };
+  }
+
+  function runDataQuality() {
+    const rows = demoState.rows;
+    const total = rows.length;
+    let missingEmail = 0, missingCity = 0, missingName = 0;
+    let invalidEmail = 0;
+    const emailRE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    rows.forEach((r) => {
+      if (!r.name || r.name.trim().length < 2) missingName++;
+      if (!r.email || !emailRE.test(r.email.trim())) invalidEmail++;
+      if (!r.city || r.city.trim() === "") missingCity++;
+    });
+
+    // Duplicate detection
+    const seen = new Map();
+    rows.forEach((r) => {
+      const key = r.name.trim().toLowerCase() + "|" + r.email.trim().toLowerCase();
+      seen.set(key, (seen.get(key) || 0) + 1);
+    });
+    const duplicates = Array.from(seen.values()).filter((v) => v > 1).reduce((a, b) => a + b - 1, 0);
+
+    // Whitespace issues
+    let whitespaceIssues = 0;
+    rows.forEach((r) => {
+      if (r.name !== r.name.trim() || r.city !== r.city.trim()) whitespaceIssues++;
+    });
+
+    const issues = missingName + invalidEmail + missingCity + duplicates + whitespaceIssues;
+    const quality = total > 0 ? Math.round(((total - Math.min(issues, total)) / total) * 100) : 100;
+
+    return { total, missingName, invalidEmail, missingCity, duplicates, whitespaceIssues, quality, issues };
+  }
+
+  function autoCleanData() {
+    const emailRE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    const validStatuses = ["Active", "Pending", "Inactive"];
+    const seen = new Map();
+    const cleaned = [];
+
+    demoState.rows.forEach((r) => {
+      const name = titleCase(r.name.replace(/\s+/g, " ").trim());
+      const email = r.email.trim().toLowerCase();
+      const city = titleCase(r.city.replace(/\s+/g, " ").trim());
+      const status = validStatuses.includes(r.status) ? r.status : "Pending";
+
+      const key = name.toLowerCase() + "|" + email;
+      if (!seen.has(key)) {
+        seen.set(key, true);
+        cleaned.push({ ...r, name, email, city, status });
+      }
+    });
+
+    const before = demoState.rows.length;
+    demoState.rows = cleaned;
+    demoState.nextId = Math.max(...cleaned.map((r) => Number(r.idNum || 0)), 1008) + 1;
+    saveRows();
+    renderDemoTable();
+    return { before, after: cleaned.length, removed: before - cleaned.length };
+  }
+
   function wireDemo() {
     loadRows();
     renderDemoTable();
 
-    $("#demoSearch").addEventListener("input", (e) => {
-      demoState.query = e.target.value;
-      renderDemoTable();
-    });
+    // Search
+    const searchEl = $("#demoSearch");
+    if (searchEl) {
+      searchEl.addEventListener("input", (e) => {
+        demoState.query = e.target.value;
+        demoState.page = 1;
+        renderDemoTable();
+      });
+    }
 
+    // Status filter
+    const filterEl = $("#demoFilter");
+    if (filterEl) {
+      filterEl.addEventListener("change", (e) => {
+        demoState.statusFilter = e.target.value;
+        demoState.page = 1;
+        renderDemoTable();
+      });
+    }
+
+    // Sort buttons
     $$(".sort-btn").forEach((btn) =>
       btn.addEventListener("click", () => {
         const key = btn.dataset.sort;
@@ -678,96 +988,824 @@
       })
     );
 
-    $("#demoAddBtn").addEventListener("click", () => openDemoForm(null));
-    $("#formCancelBtn").addEventListener("click", closeDemoForm);
+    // Add record
+    const addBtn = $("#demoAddBtn");
+    if (addBtn) addBtn.addEventListener("click", () => openDemoForm(null));
 
-    $("#recordForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const name = $("#fName").value;
-      const email = $("#fEmail").value;
-      const city = $("#fCity").value;
-      const status = $("#fStatus").value;
-      const errors = validateRecord(name, email, city);
-      setFieldError($("#fName"), $("#errName"), errors.name);
-      setFieldError($("#fEmail"), $("#errEmail"), errors.email);
-      setFieldError($("#fCity"), $("#errCity"), errors.city);
-      if (Object.keys(errors).length) {
-        demoMsg("Please fix the highlighted fields.", false);
-        return;
-      }
-      const cleanName = name.trim().replace(/\s+/g, " ");
-      if (demoState.editingId) {
-        const row = demoState.rows.find((r) => r.id === demoState.editingId);
-        Object.assign(row, { name: cleanName, email: email.trim().toLowerCase(), city: city.trim(), status });
-        demoMsg("Record " + row.id + " updated successfully.", true);
-      } else {
-        const idNum = demoState.nextId++;
-        demoState.rows.push({
-          id: "C-" + idNum, idNum, name: cleanName,
-          email: email.trim().toLowerCase(), city: city.trim(), status
-        });
-        demoMsg("New record added (C-" + idNum + ").", true);
-      }
-      saveRows();
-      renderDemoTable();
-      closeDemoForm();
-    });
+    const cancelBtn = $("#formCancelBtn");
+    if (cancelBtn) cancelBtn.addEventListener("click", closeDemoForm);
 
-    $("#demoTbody").addEventListener("click", (e) => {
-      const edit = e.target.closest("[data-edit-row]");
-      const del = e.target.closest("[data-del-row]");
-      if (edit) {
-        const row = demoState.rows.find((r) => r.id === edit.dataset.editRow);
-        openDemoForm(row);
-      } else if (del) {
-        const id = del.dataset.delRow;
-        const row = demoState.rows.find((r) => r.id === id);
-        if (row && window.confirm("Delete record " + id + " (" + row.name + ")?")) {
-          demoState.rows = demoState.rows.filter((r) => r.id !== id);
-          saveRows();
+    // Form submit
+    const form = $("#recordForm");
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = $("#fName").value;
+        const email = $("#fEmail").value;
+        const city = $("#fCity").value;
+        const status = $("#fStatus").value;
+        const errors = validateRecord(name, email, city);
+        setFieldError($("#fName"), $("#errName"), errors.name);
+        setFieldError($("#fEmail"), $("#errEmail"), errors.email);
+        setFieldError($("#fCity"), $("#errCity"), errors.city);
+        if (Object.keys(errors).length) {
+          showDemoMsg("Please fix the highlighted fields.", false);
+          return;
+        }
+        const cleanName = name.trim().replace(/\s+/g, " ");
+        // Duplicate check
+        const isDup = demoState.rows.some((r) =>
+          r.id !== demoState.editingId &&
+          r.name.trim().toLowerCase() === cleanName.trim().toLowerCase() &&
+          r.email.trim().toLowerCase() === email.trim().toLowerCase()
+        );
+        if (isDup) {
+          if (!window.confirm("A record with this name and email already exists. Save anyway?")) return;
+        }
+        if (demoState.editingId) {
+          const row = demoState.rows.find((r) => r.id === demoState.editingId);
+          if (row) Object.assign(row, { name: cleanName, email: email.trim().toLowerCase(), city: city.trim(), status });
+          showDemoMsg("Record " + (row ? row.id : "") + " updated.", true);
+        } else {
+          const idNum = demoState.nextId++;
+          demoState.rows.push({
+            id: "C-" + idNum, idNum, name: cleanName,
+            email: email.trim().toLowerCase(), city: city.trim(), status,
+            created: Date.now()
+          });
+          showDemoMsg("New record added (C-" + idNum + ").", true);
+        }
+        saveRows();
+        renderDemoTable();
+        closeDemoForm();
+      });
+    }
+
+    // Row actions (edit / delete)
+    const tbody = $("#demoTbody");
+    if (tbody) {
+      tbody.addEventListener("click", (e) => {
+        const edit = e.target.closest("[data-edit-row]");
+        const del  = e.target.closest("[data-del-row]");
+        const selCb = e.target.closest("[data-sel-id]");
+
+        if (selCb) {
+          const id = selCb.dataset.selId;
+          if (selCb.checked) demoState.selected.add(id);
+          else demoState.selected.delete(id);
           renderDemoTable();
-          demoMsg("Record " + id + " deleted.", true);
-          if (demoState.editingId === id) closeDemoForm();
+        } else if (edit) {
+          const row = demoState.rows.find((r) => r.id === edit.dataset.editRow);
+          if (row) openDemoForm(row);
+        } else if (del) {
+          const id = del.dataset.delRow;
+          const row = demoState.rows.find((r) => r.id === id);
+          if (row && window.confirm("Delete record " + id + " (" + row.name + ")?")) {
+            demoState.rows = demoState.rows.filter((r) => r.id !== id);
+            demoState.selected.delete(id);
+            saveRows();
+            renderDemoTable();
+            showDemoMsg("Record " + id + " deleted.", true);
+            if (demoState.editingId === id) closeDemoForm();
+          }
+        }
+      });
+    }
+
+    // Select all
+    const selectAll = $("#selectAll");
+    if (selectAll) {
+      selectAll.addEventListener("change", () => {
+        const { rows } = pagedRows();
+        rows.forEach((r) => {
+          if (selectAll.checked) demoState.selected.add(r.id);
+          else demoState.selected.delete(r.id);
+        });
+        renderDemoTable();
+      });
+    }
+
+    // Bulk delete
+    const bulkDeleteBtn = $("#bulkDeleteBtn");
+    if (bulkDeleteBtn) {
+      bulkDeleteBtn.addEventListener("click", () => {
+        const count = demoState.selected.size;
+        if (!count) return;
+        if (!window.confirm("Delete " + count + " selected record" + (count === 1 ? "" : "s") + "? This cannot be undone.")) return;
+        demoState.rows = demoState.rows.filter((r) => !demoState.selected.has(r.id));
+        demoState.selected.clear();
+        saveRows();
+        renderDemoTable();
+        showDemoMsg(count + " records deleted.", true);
+      });
+    }
+
+    // Bulk deselect
+    const bulkDeselectBtn = $("#bulkDeselectBtn");
+    if (bulkDeselectBtn) {
+      bulkDeselectBtn.addEventListener("click", () => {
+        demoState.selected.clear();
+        renderDemoTable();
+      });
+    }
+
+    // Actions menu toggle
+    const menuBtn = $("#demoMenuBtn");
+    const menu = $("#demoMenu");
+    if (menuBtn && menu) {
+      menuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const open = menu.hidden;
+        menu.hidden = !open;
+        menuBtn.setAttribute("aria-expanded", String(open));
+      });
+      document.addEventListener("click", () => {
+        menu.hidden = true;
+        menuBtn.setAttribute("aria-expanded", "false");
+      });
+      menu.addEventListener("click", (e) => e.stopPropagation());
+    }
+
+    function closeMenu() {
+      if (menu) { menu.hidden = true; menuBtn.setAttribute("aria-expanded", "false"); }
+    }
+
+    // Export all
+    const exportBtn = $("#demoExportBtn");
+    if (exportBtn) {
+      exportBtn.addEventListener("click", () => {
+        downloadCSV(rowsToCSV(demoState.rows), "demo-records.csv");
+        showDemoMsg("Exported " + demoState.rows.length + " records to CSV.", true);
+        closeMenu();
+        trackEvent("csv_export", { type: "all", count: demoState.rows.length });
+      });
+    }
+
+    // Export filtered
+    const exportFilteredBtn = $("#demoExportFilteredBtn");
+    if (exportFilteredBtn) {
+      exportFilteredBtn.addEventListener("click", () => {
+        const rows = visibleRows();
+        downloadCSV(rowsToCSV(rows), "demo-records-filtered.csv");
+        showDemoMsg("Exported " + rows.length + " filtered records to CSV.", true);
+        closeMenu();
+        trackEvent("csv_export", { type: "filtered", count: rows.length });
+      });
+    }
+
+    // Export before reset shortcut
+    const exportBeforeReset = $("#demoExportBeforeReset");
+    if (exportBeforeReset) {
+      exportBeforeReset.addEventListener("click", () => {
+        downloadCSV(rowsToCSV(demoState.rows), "demo-records-backup.csv");
+        showDemoMsg("Exported " + demoState.rows.length + " records.", true);
+      });
+    }
+
+    // Download template
+    const templateBtn = $("#demoTemplateBtn");
+    if (templateBtn) {
+      templateBtn.addEventListener("click", () => {
+        const csv = "Name,Email,City,Status\nJohn Smith,john.smith@example.com,New York,Active\nJane Doe,jane.doe@example.com,Los Angeles,Pending";
+        downloadCSV(csv, "data-entry-template.csv");
+        closeMenu();
+        trackEvent("csv_template_download");
+      });
+    }
+
+    // Import CSV
+    const importBtn = $("#demoImportBtn");
+    const csvFileInput = $("#csvFileInput");
+    if (importBtn && csvFileInput) {
+      importBtn.addEventListener("click", () => {
+        csvFileInput.click();
+        closeMenu();
+      });
+      csvFileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        csvFileInput.value = "";
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const text = ev.target.result;
+          const allRows = parseCSV(text);
+          if (allRows.length < 2) {
+            showDemoMsg("CSV file is empty or has no data rows.", false);
+            return;
+          }
+          const [headers, ...dataRows] = allRows;
+          const result = buildImportPreview(dataRows, headers);
+          if (!result.valid) {
+            showDemoMsg(result.error, false);
+            return;
+          }
+          demoState.pendingImport = result;
+          renderImportPreview(result);
+        };
+        reader.readAsText(file, "UTF-8");
+      });
+    }
+
+    function renderImportPreview(result) {
+      const panel = $("#importPreview");
+      if (!panel) return;
+      panel.hidden = false;
+      const summary = result.validRows.length + " valid rows ready to import" +
+        (result.invalidRows.length ? ", " + result.invalidRows.length + " rows skipped (invalid)" : "") + ".";
+      $("#importSummary").textContent = summary;
+      const thead = $("#importThead");
+      thead.innerHTML = "<tr><th>Name</th><th>Email</th><th>City</th><th>Status</th></tr>";
+      const tbody = $("#importTbody");
+      const preview = result.validRows.slice(0, 8);
+      tbody.innerHTML = preview.map((r) =>
+        "<tr><td>" + esc(r.name) + "</td><td class='email'>" + esc(r.email) + "</td><td>" + esc(r.city) + "</td><td>" + pill(r.status) + "</td></tr>"
+      ).join("");
+      if (result.validRows.length > 8) {
+        tbody.innerHTML += '<tr><td colspan="4" class="empty-row">…and ' + (result.validRows.length - 8) + ' more rows</td></tr>';
+      }
+    }
+
+    const importConfirmBtn = $("#importConfirmBtn");
+    if (importConfirmBtn) {
+      importConfirmBtn.addEventListener("click", () => {
+        if (!demoState.pendingImport || !demoState.pendingImport.validRows.length) return;
+        const newRows = demoState.pendingImport.validRows.map((r) => {
+          const idNum = demoState.nextId++;
+          return { ...r, id: "C-" + idNum, idNum, created: Date.now() };
+        });
+        demoState.rows = [...demoState.rows, ...newRows];
+        saveRows();
+        renderDemoTable();
+        $("#importPreview").hidden = true;
+        demoState.pendingImport = null;
+        showDemoMsg("Imported " + newRows.length + " records successfully.", true);
+        trackEvent("csv_import", { count: newRows.length });
+      });
+    }
+
+    const importCancelBtn = $("#importCancelBtn");
+    if (importCancelBtn) {
+      importCancelBtn.addEventListener("click", () => {
+        $("#importPreview").hidden = true;
+        demoState.pendingImport = null;
+      });
+    }
+
+    // Data quality check
+    const qualityBtn = $("#demoQualityBtn");
+    if (qualityBtn) {
+      qualityBtn.addEventListener("click", () => {
+        const q = runDataQuality();
+        renderQualityPanel(q);
+        $("#qualityPanel").hidden = false;
+        closeMenu();
+      });
+    }
+
+    // Auto-clean
+    const cleanBtn = $("#demoCleanBtn");
+    if (cleanBtn) {
+      cleanBtn.addEventListener("click", () => {
+        if (!window.confirm("Auto-clean will: trim whitespace, fix capitalization, remove exact duplicates, and normalize statuses. Continue?")) return;
+        const result = autoCleanData();
+        showDemoMsg("Cleaned: " + result.removed + " duplicates removed. " + result.after + " records remain.", true);
+        refreshAnalyticsDashboard();
+        closeMenu();
+      });
+    }
+
+    const qualityCleanBtn = $("#qualityCleanBtn");
+    if (qualityCleanBtn) {
+      qualityCleanBtn.addEventListener("click", () => {
+        if (!window.confirm("Apply auto-clean to all records? Duplicates will be removed, whitespace trimmed, capitalization normalized.")) return;
+        const result = autoCleanData();
+        showDemoMsg("Cleaned: " + result.removed + " duplicates removed.", true);
+        $("#qualityPanel").hidden = true;
+        refreshAnalyticsDashboard();
+      });
+    }
+
+    const qualityCloseBtn = $("#qualityCloseBtn");
+    if (qualityCloseBtn) {
+      qualityCloseBtn.addEventListener("click", () => { $("#qualityPanel").hidden = true; });
+    }
+
+    // Reset
+    const resetBtn = $("#demoResetBtn");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", () => {
+        if (!window.confirm("Reset all records back to the original demo data? Your changes will be lost.\n\nTip: Export first to keep your data.")) return;
+        try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+        demoState.rows = SEED.map((c) => ({ ...c }));
+        demoState.nextId = 1009;
+        demoState.query = "";
+        demoState.statusFilter = "";
+        demoState.sortKey = null;
+        demoState.selected.clear();
+        demoState.page = 1;
+        const searchEl2 = $("#demoSearch");
+        if (searchEl2) searchEl2.value = "";
+        const filterEl2 = $("#demoFilter");
+        if (filterEl2) filterEl2.value = "";
+        closeDemoForm();
+        $("#importPreview").hidden = true;
+        $("#qualityPanel").hidden = true;
+        renderDemoTable();
+        showDemoMsg("Demo reset to the original sample records.", true);
+        refreshAnalyticsDashboard();
+        closeMenu();
+      });
+    }
+  }
+
+  function renderQualityPanel(q) {
+    const el = $("#qualityMetrics");
+    if (!el) return;
+    const items = [
+      { label: "Total Records", value: q.total, cls: "kpi-blue" },
+      { label: "Quality Score", value: q.quality + "%", cls: q.quality >= 90 ? "q-good" : q.quality >= 70 ? "q-warn" : "q-bad" },
+      { label: "Missing Name", value: q.missingName, cls: q.missingName === 0 ? "q-good" : "q-bad" },
+      { label: "Invalid Email", value: q.invalidEmail, cls: q.invalidEmail === 0 ? "q-good" : "q-bad" },
+      { label: "Missing City", value: q.missingCity, cls: q.missingCity === 0 ? "q-good" : "q-bad" },
+      { label: "Duplicates", value: q.duplicates, cls: q.duplicates === 0 ? "q-good" : "q-warn" },
+      { label: "Whitespace Issues", value: q.whitespaceIssues, cls: q.whitespaceIssues === 0 ? "q-good" : "q-warn" }
+    ];
+    el.innerHTML = items.map((m) =>
+      '<div class="quality-metric ' + m.cls + '">' +
+      '<div class="q-label">' + esc(m.label) + "</div>" +
+      '<div class="q-value">' + esc(String(m.value)) + "</div>" +
+      "</div>"
+    ).join("");
+  }
+
+  /* =========================================================
+     Analytics Dashboard
+     Derives values from the live demoState.rows dataset.
+     ========================================================= */
+  let charts = {};
+
+  function computeAnalytics() {
+    const rows = demoState.rows;
+    const q = runDataQuality();
+    const byCat = {};
+    rows.forEach((r) => {
+      byCat[r.status] = (byCat[r.status] || 0) + 1;
+    });
+    return { rows, q, byCat };
+  }
+
+  function refreshAnalyticsDashboard() {
+    const kpisEl = $("#analyticsKpis");
+    if (!kpisEl) return;
+    const { rows, q, byCat } = computeAnalytics();
+
+    // KPI cards
+    const active = (byCat["Active"] || 0);
+    const pending = (byCat["Pending"] || 0);
+    const inactive = (byCat["Inactive"] || 0);
+    kpisEl.innerHTML = [
+      { label: "Total Records", value: q.total, cls: "" },
+      { label: "Quality Score", value: q.quality + "%", cls: q.quality >= 90 ? "kpi-green" : q.quality >= 70 ? "kpi-amber" : "kpi-red" },
+      { label: "Active", value: active, cls: "kpi-green" },
+      { label: "Pending", value: pending, cls: "kpi-amber" },
+      { label: "Inactive", value: inactive, cls: "kpi-red" },
+      { label: "Data Issues", value: q.issues, cls: q.issues === 0 ? "kpi-green" : "kpi-amber" }
+    ].map((k) =>
+      '<div class="kpi-card"><div class="kpi-value ' + k.cls + '">' + esc(String(k.value)) + '</div><div class="kpi-label">' + esc(k.label) + "</div></div>"
+    ).join("");
+
+    // Status chart
+    renderStatusChart(byCat);
+
+    // Quality chart
+    renderQualityChart(q);
+  }
+
+  function renderStatusChart(byCat) {
+    const canvas = $("#chartStatus");
+    if (!canvas) return;
+    if (typeof Chart === "undefined") {
+      canvas.insertAdjacentHTML("afterend", '<p class="chart-desc" style="color:var(--muted);font-size:0.8rem;">Chart.js not loaded — charts unavailable.</p>');
+      return;
+    }
+    const labels = Object.keys(byCat);
+    const data = labels.map((l) => byCat[l]);
+    const colors = { Active: "#16865B", Pending: "#c4a020", Inactive: "#b34740" };
+    const bg = labels.map((l) => colors[l] || "#8ba094");
+
+    if (charts.status) { charts.status.destroy(); }
+    charts.status = new Chart(canvas, {
+      type: "doughnut",
+      data: { labels, datasets: [{ data, backgroundColor: bg, borderWidth: 2, borderColor: getComputedStyle(document.documentElement).getPropertyValue("--white") || "#fff" }] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (ctx) => " " + ctx.label + ": " + ctx.raw + " records" } }
         }
       }
     });
 
-    $("#demoResetBtn").addEventListener("click", () => {
-      try { localStorage.removeItem(STORAGE_KEY); } catch (err) { /* ignore */ }
-      demoState.rows = SEED.map((c, i) => ({ ...c, idNum: 1001 + i }));
-      demoState.nextId = 1009;
-      demoState.query = "";
-      demoState.sortKey = null;
-      $("#demoSearch").value = "";
-      closeDemoForm();
-      renderDemoTable();
-      demoMsg("Demo reset to the original sample records.", true);
-    });
+    const legendEl = $("#statusLegend");
+    if (legendEl) {
+      legendEl.innerHTML = labels.map((l, i) =>
+        '<span style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;font-size:0.75rem;">' +
+        '<span style="width:10px;height:10px;border-radius:50%;background:' + bg[i] + ';display:inline-block;"></span>' +
+        esc(l) + ": " + data[i] + "</span>"
+      ).join("");
+    }
   }
 
-  /* ---------- Contact form (Formspree AJAX handles submission) ---------- */
+  function renderQualityChart(q) {
+    const canvas = $("#chartQuality");
+    if (!canvas) return;
+    if (typeof Chart === "undefined") return;
+
+    const labels = ["Valid Records", "Missing Name", "Invalid Email", "Missing City", "Duplicates"];
+    const data = [
+      q.total - q.issues,
+      q.missingName,
+      q.invalidEmail,
+      q.missingCity,
+      q.duplicates
+    ];
+    const colors = ["#16865B", "#b34740", "#e07b39", "#c4a020", "#8b4d9e"];
+
+    if (charts.quality) { charts.quality.destroy(); }
+    charts.quality = new Chart(canvas, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{
+          label: "Count",
+          data,
+          backgroundColor: colors,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (ctx) => " " + ctx.label + ": " + ctx.raw } }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: "rgba(0,0,0,0.06)" } },
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+
+    const descEl = $("#qualityDesc");
+    if (descEl) {
+      descEl.textContent = q.issues === 0
+        ? "All " + q.total + " records pass quality checks."
+        : q.issues + " issue" + (q.issues === 1 ? "" : "s") + " found across " + q.total + " records. Quality score: " + q.quality + "%.";
+    }
+  }
+
+  /* =========================================================
+     Task Manager
+     ========================================================= */
+  const TASK_KEY = "mjm-tasks-v1";
+  const TASK_SEED = [
+    { id: "T-001", title: "Compile contact list for email campaign", priority: "High", dueDate: "2026-10-22", status: "In Progress", notes: "Use company website + LinkedIn", created: Date.now() - 86400000 * 3 },
+    { id: "T-002", title: "Clean and format Q3 sales spreadsheet", priority: "High", dueDate: "2026-10-21", status: "Completed", notes: "Remove duplicates, fix headers", created: Date.now() - 86400000 * 5 },
+    { id: "T-003", title: "Research competitor pricing pages", priority: "Medium", dueDate: "2026-10-24", status: "To Do", notes: "", created: Date.now() - 86400000 * 2 },
+    { id: "T-004", title: "Organize shared Google Drive folder", priority: "Low", dueDate: "2026-10-28", status: "To Do", notes: "Rename files with consistent naming", created: Date.now() - 86400000 },
+    { id: "T-005", title: "Prepare weekly status report template", priority: "Medium", dueDate: "2026-10-20", status: "To Do", notes: "Include KPIs from last week", created: Date.now() - 86400000 * 4 },
+    { id: "T-006", title: "Convert invoice PDFs to spreadsheet", priority: "High", dueDate: "2026-10-19", status: "Completed", notes: "15 invoices from October", created: Date.now() - 86400000 * 6 }
+  ];
+
+  const taskState = {
+    tasks: [],
+    nextId: 7,
+    searchQ: "",
+    filterStatus: "",
+    filterPriority: "",
+    sortKey: "dueDate",
+    editingId: null
+  };
+
+  function loadTasks() {
+    try {
+      const raw = localStorage.getItem(TASK_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) {
+          taskState.tasks = parsed;
+          taskState.nextId = Math.max(...parsed.map((t) => parseInt(t.id.replace("T-", "")) || 0), 6) + 1;
+          return;
+        }
+      }
+    } catch (_) {}
+    taskState.tasks = TASK_SEED.map((t) => ({ ...t }));
+  }
+
+  function saveTasks() {
+    try { localStorage.setItem(TASK_KEY, JSON.stringify(taskState.tasks)); }
+    catch (_) {}
+  }
+
+  function showTaskMsg(text, ok) {
+    const el = $("#taskMsg");
+    if (!el) return;
+    el.textContent = text;
+    el.className = "demo-msg " + (ok ? "ok" : "err");
+    clearTimeout(showTaskMsg._t);
+    showTaskMsg._t = setTimeout(() => { el.textContent = ""; el.className = "demo-msg"; }, 5000);
+  }
+
+  function isOverdue(task) {
+    if (!task.dueDate || task.status === "Completed") return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(task.dueDate + "T00:00:00");
+    return due < today;
+  }
+
+  function effectiveStatus(task) {
+    return isOverdue(task) ? "Overdue" : task.status;
+  }
+
+  function filteredTasks() {
+    let tasks = taskState.tasks.map((t) => ({ ...t, _status: effectiveStatus(t) }));
+
+    const q = taskState.searchQ.trim().toLowerCase();
+    if (q) tasks = tasks.filter((t) => (t.title + " " + t.notes).toLowerCase().includes(q));
+
+    if (taskState.filterStatus) tasks = tasks.filter((t) => t._status === taskState.filterStatus);
+    if (taskState.filterPriority) tasks = tasks.filter((t) => t.priority === taskState.filterPriority);
+
+    tasks.sort((a, b) => {
+      if (taskState.sortKey === "dueDate") {
+        if (!a.dueDate && !b.dueDate) return 0;
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return a.dueDate.localeCompare(b.dueDate);
+      }
+      if (taskState.sortKey === "priority") {
+        const order = { High: 0, Medium: 1, Low: 2 };
+        return (order[a.priority] ?? 3) - (order[b.priority] ?? 3);
+      }
+      if (taskState.sortKey === "status") {
+        const order = { Overdue: 0, "In Progress": 1, "To Do": 2, Completed: 3 };
+        return (order[a._status] ?? 4) - (order[b._status] ?? 4);
+      }
+      if (taskState.sortKey === "created") return (b.created || 0) - (a.created || 0);
+      return 0;
+    });
+
+    return tasks;
+  }
+
+  function renderTaskStats() {
+    const el = $("#taskStats");
+    if (!el) return;
+    const all = taskState.tasks.map((t) => ({ ...t, _status: effectiveStatus(t) }));
+    const counts = { "To Do": 0, "In Progress": 0, Completed: 0, Overdue: 0 };
+    all.forEach((t) => { counts[t._status] = (counts[t._status] || 0) + 1; });
+    el.innerHTML =
+      '<span class="task-stat-pill tstat-todo">To Do: ' + (counts["To Do"] || 0) + "</span>" +
+      '<span class="task-stat-pill tstat-inprog">In Progress: ' + (counts["In Progress"] || 0) + "</span>" +
+      '<span class="task-stat-pill tstat-done">Completed: ' + (counts["Completed"] || 0) + "</span>" +
+      '<span class="task-stat-pill tstat-overdue">Overdue: ' + (counts["Overdue"] || 0) + "</span>";
+  }
+
+  function renderTaskList() {
+    const el = $("#taskList");
+    if (!el) return;
+    const tasks = filteredTasks();
+    renderTaskStats();
+
+    if (!tasks.length) {
+      el.innerHTML = '<div class="task-empty">No tasks match your filter. <button type="button" class="btn-text" id="clearTaskFilters">Clear filters</button></div>';
+      const clearBtn = $("#clearTaskFilters");
+      if (clearBtn) {
+        clearBtn.addEventListener("click", () => {
+          taskState.searchQ = "";
+          taskState.filterStatus = "";
+          taskState.filterPriority = "";
+          const sEl = $("#taskSearch"); if (sEl) sEl.value = "";
+          const fsEl = $("#taskFilterStatus"); if (fsEl) fsEl.value = "";
+          const fpEl = $("#taskFilterPriority"); if (fpEl) fpEl.value = "";
+          renderTaskList();
+        });
+      }
+      return;
+    }
+
+    const prioClass = { High: "priority-high", Medium: "priority-medium", Low: "priority-low" };
+    const statusClass = { "To Do": "tstatus-todo", "In Progress": "tstatus-inprog", Completed: "tstatus-done", Overdue: "tstatus-overdue" };
+
+    el.innerHTML = tasks.map((t) => {
+      const isDone = t.status === "Completed";
+      const isOvd = t._status === "Overdue";
+      const dispStatus = t._status;
+      let dueTxt = "";
+      if (t.dueDate) {
+        const d = new Date(t.dueDate + "T00:00:00");
+        dueTxt = "Due: " + d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        if (isOvd) dueTxt += " ⚠ Overdue";
+      }
+      return '<div class="task-card' + (isDone ? " done-task" : "") + (isOvd ? " overdue-task" : "") + '" data-task-id="' + esc(t.id) + '">' +
+        '<div class="task-left">' +
+        '<p class="task-title">' + esc(t.title) + "</p>" +
+        '<div class="task-meta">' +
+        '<span class="priority-badge ' + (prioClass[t.priority] || "") + '">' + esc(t.priority) + "</span>" +
+        '<span class="task-status-badge ' + (statusClass[dispStatus] || "") + '">' + esc(dispStatus) + "</span>" +
+        (dueTxt ? '<span>' + esc(dueTxt) + "</span>" : "") +
+        "</div>" +
+        (t.notes ? '<p class="task-notes">' + esc(t.notes) + "</p>" : "") +
+        "</div>" +
+        '<div class="task-right">' +
+        (isDone
+          ? '<button type="button" class="task-undone" data-task-id="' + esc(t.id) + '">↩ Undo</button>'
+          : '<button type="button" class="task-done" data-task-id="' + esc(t.id) + '">✓ Done</button>') +
+        '<button type="button" class="task-edit" data-task-id="' + esc(t.id) + '">Edit</button>' +
+        '<button type="button" class="task-delete" data-task-id="' + esc(t.id) + '">Delete</button>' +
+        "</div>" +
+        "</div>";
+    }).join("");
+  }
+
+  function openTaskForm(prefill) {
+    const wrap = $("#taskFormWrap");
+    if (!wrap) return;
+    wrap.hidden = false;
+    $("#tTitle").value = prefill ? prefill.title : "";
+    $("#tPriority").value = prefill ? prefill.priority : "Medium";
+    $("#tDue").value = prefill ? (prefill.dueDate || "") : "";
+    $("#tStatus").value = prefill ? (["To Do", "In Progress", "Completed"].includes(prefill.status) ? prefill.status : "To Do") : "To Do";
+    $("#tNotes").value = prefill ? (prefill.notes || "") : "";
+    $("#taskSubmitBtn").textContent = prefill ? "Update Task" : "Save Task";
+    taskState.editingId = prefill ? prefill.id : null;
+    const errEl = $("#errTTitle"); if (errEl) errEl.textContent = "";
+    $("#tTitle").focus();
+  }
+
+  function closeTaskForm() {
+    const wrap = $("#taskFormWrap");
+    if (wrap) wrap.hidden = true;
+    taskState.editingId = null;
+  }
+
+  function wireTaskManager() {
+    loadTasks();
+    renderTaskList();
+
+    const searchEl = $("#taskSearch");
+    if (searchEl) {
+      searchEl.addEventListener("input", (e) => { taskState.searchQ = e.target.value; renderTaskList(); });
+    }
+
+    const filterStatus = $("#taskFilterStatus");
+    if (filterStatus) {
+      filterStatus.addEventListener("change", (e) => { taskState.filterStatus = e.target.value; renderTaskList(); });
+    }
+
+    const filterPriority = $("#taskFilterPriority");
+    if (filterPriority) {
+      filterPriority.addEventListener("change", (e) => { taskState.filterPriority = e.target.value; renderTaskList(); });
+    }
+
+    const sortSelect = $("#taskSort");
+    if (sortSelect) {
+      sortSelect.addEventListener("change", (e) => { taskState.sortKey = e.target.value; renderTaskList(); });
+    }
+
+    const addTaskBtn = $("#addTaskBtn");
+    if (addTaskBtn) addTaskBtn.addEventListener("click", () => openTaskForm(null));
+
+    const taskCancelBtn = $("#taskCancelBtn");
+    if (taskCancelBtn) taskCancelBtn.addEventListener("click", closeTaskForm);
+
+    const taskForm = $("#taskForm");
+    if (taskForm) {
+      taskForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const title = $("#tTitle").value.trim();
+        const errEl = $("#errTTitle");
+        if (!title || title.length < 2) {
+          if (errEl) errEl.textContent = "Enter a task title (2+ characters).";
+          $("#tTitle").classList.add("invalid");
+          return;
+        }
+        if (errEl) errEl.textContent = "";
+        $("#tTitle").classList.remove("invalid");
+
+        const task = {
+          title,
+          priority: $("#tPriority").value,
+          dueDate: $("#tDue").value || "",
+          status: $("#tStatus").value,
+          notes: $("#tNotes").value.trim()
+        };
+
+        if (taskState.editingId) {
+          const idx = taskState.tasks.findIndex((t) => t.id === taskState.editingId);
+          if (idx >= 0) taskState.tasks[idx] = { ...taskState.tasks[idx], ...task };
+          showTaskMsg("Task updated.", true);
+        } else {
+          const newId = "T-" + String(taskState.nextId++).padStart(3, "0");
+          taskState.tasks.push({ id: newId, ...task, created: Date.now() });
+          showTaskMsg("Task added.", true);
+        }
+
+        saveTasks();
+        renderTaskList();
+        closeTaskForm();
+      });
+    }
+
+    const taskList = $("#taskList");
+    if (taskList) {
+      taskList.addEventListener("click", (e) => {
+        const doneBtn = e.target.closest(".task-done");
+        const undoneBtn = e.target.closest(".task-undone");
+        const editBtn = e.target.closest(".task-edit");
+        const deleteBtn = e.target.closest(".task-delete");
+
+        if (doneBtn) {
+          const id = doneBtn.dataset.taskId;
+          const task = taskState.tasks.find((t) => t.id === id);
+          if (task) { task.status = "Completed"; saveTasks(); renderTaskList(); }
+        } else if (undoneBtn) {
+          const id = undoneBtn.dataset.taskId;
+          const task = taskState.tasks.find((t) => t.id === id);
+          if (task) { task.status = "To Do"; saveTasks(); renderTaskList(); }
+        } else if (editBtn) {
+          const id = editBtn.dataset.taskId;
+          const task = taskState.tasks.find((t) => t.id === id);
+          if (task) openTaskForm(task);
+        } else if (deleteBtn) {
+          const id = deleteBtn.dataset.taskId;
+          const task = taskState.tasks.find((t) => t.id === id);
+          if (task && window.confirm("Delete task: \"" + task.title + "\"?")) {
+            taskState.tasks = taskState.tasks.filter((t) => t.id !== id);
+            saveTasks();
+            renderTaskList();
+            showTaskMsg("Task deleted.", true);
+            if (taskState.editingId === id) closeTaskForm();
+          }
+        }
+      });
+    }
+
+    // Export tasks
+    const exportTasksBtn = $("#exportTasksBtn");
+    if (exportTasksBtn) {
+      exportTasksBtn.addEventListener("click", () => {
+        const header = ["ID", "Title", "Priority", "Due Date", "Status", "Notes"];
+        const lines = [header.join(",")];
+        taskState.tasks.forEach((t) => {
+          lines.push([t.id, t.title, t.priority, t.dueDate || "", t.status, t.notes || ""].map(escapeCSVCell).join(","));
+        });
+        downloadCSV(lines.join("\r\n"), "tasks-export.csv");
+        showTaskMsg("Exported " + taskState.tasks.length + " tasks to CSV.", true);
+        trackEvent("task_export", { count: taskState.tasks.length });
+      });
+    }
+
+    // Reset tasks
+    const resetTasksBtn = $("#resetTasksBtn");
+    if (resetTasksBtn) {
+      resetTasksBtn.addEventListener("click", () => {
+        if (!window.confirm("Reset all tasks back to the sample data?")) return;
+        try { localStorage.removeItem(TASK_KEY); } catch (_) {}
+        taskState.tasks = TASK_SEED.map((t) => ({ ...t }));
+        taskState.nextId = 7;
+        taskState.searchQ = "";
+        taskState.filterStatus = "";
+        taskState.filterPriority = "";
+        const sEl = $("#taskSearch"); if (sEl) sEl.value = "";
+        const fsEl = $("#taskFilterStatus"); if (fsEl) fsEl.value = "";
+        const fpEl = $("#taskFilterPriority"); if (fpEl) fpEl.value = "";
+        closeTaskForm();
+        renderTaskList();
+        showTaskMsg("Tasks reset to demo data.", true);
+      });
+    }
+  }
+
+  /* ---------- Contact form ---------- */
   function wireContactForm() {
     const form = $("#contactForm");
     if (!form) return;
-    
-    // Basic field validation before Formspree processes
     const fields = [
       { input: $("#cName"), err: $("#cErrName"), test: (v) => v.trim().length >= 2, msg: "Please enter your name." },
       { input: $("#cEmail"), err: $("#cErrEmail"), test: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()), msg: "Please enter a valid email address." },
       { input: $("#cSubject"), err: $("#cErrSubject"), test: (v) => v.trim().length >= 3, msg: "Please add a short subject." },
       { input: $("#cMessage"), err: $("#cErrMessage"), test: (v) => v.trim().length >= 10, msg: "Message should be at least 10 characters." }
     ];
-
     fields.forEach((f) => {
       f.input.addEventListener("input", () => setFieldError(f.input, f.err, ""));
       f.input.addEventListener("blur", () => {
-        if (!f.test(f.input.value)) {
-          setFieldError(f.input, f.err, f.msg);
-        }
+        if (!f.test(f.input.value)) setFieldError(f.input, f.err, f.msg);
       });
     });
-
-    // Clear error messages on focus
     form.addEventListener("submit", (e) => {
       let firstBad = null;
       fields.forEach((f) => {
@@ -775,11 +1813,20 @@
         setFieldError(f.input, f.err, bad ? f.msg : "");
         if (bad && !firstBad) firstBad = f.input;
       });
-      if (firstBad) {
-        e.preventDefault();
-        firstBad.focus();
-      }
-      // Formspree AJAX will handle the actual submission if validation passes
+      if (firstBad) { e.preventDefault(); firstBad.focus(); }
+      // Formspree handles submission after validation passes
+    });
+
+    // Track résumé download
+    const resumeLinks = $$("a[href*='Resume'], a[href*='resume']");
+    resumeLinks.forEach((a) => {
+      a.addEventListener("click", () => trackEvent("resume_download_click", { location: a.id || "link" }));
+    });
+
+    // Track contact button clicks
+    const contactLinks = $$("a[href='#contact'], a[href='mailto:']");
+    contactLinks.forEach((a) => {
+      a.addEventListener("click", () => trackEvent("contact_click"));
     });
   }
 
@@ -812,7 +1859,6 @@
     window.addEventListener("scroll", onScrollHeader, { passive: true });
     onScrollHeader();
 
-    // Active section highlighting
     const sections = $$("main section[id]");
     const linkFor = (id) => $('.nav-menu a[href="#' + id + '"]');
     const observer = new IntersectionObserver(
@@ -839,10 +1885,7 @@
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-            io.unobserve(entry.target);
-          }
+          if (entry.isIntersecting) { entry.target.classList.add("visible"); io.unobserve(entry.target); }
         });
       },
       { threshold: 0.12 }
@@ -850,27 +1893,45 @@
     els.forEach((el) => io.observe(el));
   }
 
+  /* ---------- Analytics dashboard lazy init when section scrolls into view ---------- */
+  function wireAnalyticsInit() {
+    const section = $("#analytics");
+    if (!section) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          refreshAnalyticsDashboard();
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    io.observe(section);
+  }
+
   /* ---------- Back to top + year ---------- */
   function wireMisc() {
     const btn = $("#backToTop");
-    window.addEventListener("scroll", () => {
-      btn.hidden = window.scrollY < 500;
-    }, { passive: true });
+    window.addEventListener("scroll", () => { btn.hidden = window.scrollY < 500; }, { passive: true });
     btn.addEventListener("click", () => {
       window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
     });
-    $("#year").textContent = String(new Date().getFullYear());
+    const yr = $("#year");
+    if (yr) yr.textContent = String(new Date().getFullYear());
   }
 
   /* ---------- init ---------- */
   function init() {
+    wireTheme();
     applyProfile();
     renderSkills();
     renderTools();
     renderServices();
     renderPortfolio();
+    wirePortfolioFilters();
     renderShowcase();
     wireDemo();
+    wireTaskManager();
+    wireAnalyticsInit();
     wireContactForm();
     wireNav();
     wireReveal();
